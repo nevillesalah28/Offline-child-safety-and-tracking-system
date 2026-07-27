@@ -1,0 +1,457 @@
+/* ==========================================================================
+   1. DESIGN SYSTEM & VARIABLES
+   ========================================================================== */
+:root {
+  /* Dark IoT Theme Color Palette */
+  --bg-dark: #0f172a;          /* Deep slate background */
+  --bg-card: #1e293b;          /* Elevated card surface */
+  --bg-card-hover: #334155;    /* Hover state for cards */
+  --border-color: #334155;     /* Subtle borders */
+  
+  /* Text Colors */
+  --text-main: #f8fafc;        /* High contrast primary text */
+  --text-muted: #94a3b8;       /* Secondary/label text */
+  
+  /* Status & Accent Colors */
+  --accent-primary: #38bdf8;   /* Cyan highlight */
+  --status-success: #22c55e;   /* Safe Zone Green */
+  --status-warning: #f59e0b;   /* Caution / Battery Amber */
+  --status-danger: #ef4444;    /* Danger Zone Red */
+  
+  /* Layout & Sizing */
+  --sidebar-width: 260px;
+  --radius-lg: 16px;
+  --radius-md: 10px;
+  --radius-sm: 6px;
+  --transition: all 0.25s ease-in-out;
+}
+
+/* ==========================================================================
+   2. BASE RESETS & APP SHELL
+   ========================================================================== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+body {
+  background-color: var(--bg-dark);
+  color: var(--text-main);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ==========================================================================
+   3. SIDEBAR NAVIGATION
+   ========================================================================== */
+.sidebar {
+  width: var(--sidebar-width);
+  background-color: var(--bg-card);
+  border-right: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  padding: 24px;
+  position: fixed;
+  height: 100vh;
+  z-index: 100;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 36px;
+  color: var(--accent-primary);
+}
+
+.brand-icon {
+  font-size: 32px;
+}
+
+.brand h2 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.nav-menu ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.nav-menu a {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  color: var(--text-muted);
+  text-decoration: none;
+  border-radius: var(--radius-md);
+  font-weight: 500;
+  transition: var(--transition);
+}
+
+.nav-menu li.active a,
+.nav-menu a:hover {
+  background-color: var(--bg-card-hover);
+  color: var(--text-main);
+}
+
+.nav-menu li.active a {
+  color: var(--accent-primary);
+  border-left: 3px solid var(--accent-primary);
+}
+
+.sidebar-footer {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.status-dot.online {
+  background-color: var(--status-success);
+  box-shadow: 0 0 8px var(--status-success);
+}
+
+/* ==========================================================================
+   4. MAIN CONTENT & HEADER
+   ========================================================================== */
+.main-content {
+  margin-left: var(--sidebar-width);
+  flex: 1;
+  padding: 32px;
+}
+
+.top-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 28px;
+}
+
+.header-title h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+}
+
+.header-title p {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  margin-top: 4px;
+}
+
+/* Status Badges */
+.system-status {
+  display: flex;
+  gap: 12px;
+}
+
+.status-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  font-size: 0.85rem;
+}
+
+.status-badge.tamper.safe {
+  border-color: rgba(34, 197, 94, 0.4);
+  color: var(--status-success);
+}
+
+/* ==========================================================================
+   5. GEOFENCE GRID & MAP CARD
+   ========================================================================== */
+.geofence-grid {
+  display: grid;
+  grid-template-columns: 1.8fr 1.2fr;
+  gap: 24px;
+}
+
+.geofence-controls-column {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+}
+
+.geofence-map-card {
+  height: 100%;
+  min-height: 550px;
+  display: flex;
+  flex-direction: column;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.live-badge {
+  background-color: rgba(56, 189, 248, 0.15);
+  color: var(--accent-primary);
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.map-placeholder {
+  flex: 1;
+  min-height: 440px;
+  background-color: #0b1120;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed var(--border-color);
+}
+
+.map-mock-content {
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.map-pin {
+  font-size: 48px;
+  color: var(--accent-primary);
+  margin-bottom: 8px;
+}
+
+.text-muted {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+/* ==========================================================================
+   6. GEOFENCE FORM & INPUT CONTROLS
+   ========================================================================== */
+.form-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 14px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-group label {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.form-input {
+  background-color: var(--bg-dark);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  color: var(--text-main);
+  font-size: 0.9rem;
+  outline: none;
+  transition: var(--transition);
+}
+
+.form-input:focus {
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
+}
+
+.slider-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.slider-value {
+  font-size: 0.85rem;
+  color: var(--accent-primary);
+}
+
+.form-range {
+  accent-color: var(--accent-primary);
+  height: 6px;
+  background: var(--bg-dark);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  margin-top: 4px;
+}
+
+.btn-primary {
+  background-color: var(--accent-primary);
+  color: var(--bg-dark);
+  padding: 12px;
+  border-radius: var(--radius-md);
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: var(--transition);
+  margin-top: 4px;
+}
+
+.btn-primary:hover {
+  background-color: #7dd3fc;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.3);
+}
+
+/* ==========================================================================
+   7. ACTIVE BOUNDARIES LIST & TOGGLE SWITCHES
+   ========================================================================== */
+.zones-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 14px;
+  max-height: 260px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.zone-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background-color: var(--bg-dark);
+  border-radius: var(--radius-md);
+  border-left: 4px solid var(--text-muted);
+  border-top: 1px solid var(--border-color);
+  border-right: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
+  transition: var(--transition);
+}
+
+.zone-item.safe-zone {
+  border-left-color: var(--status-success);
+}
+
+.zone-item.danger-zone {
+  border-left-color: var(--status-danger);
+}
+
+.zone-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.safe-zone .zone-icon { color: var(--status-success); }
+.danger-zone .zone-icon { color: var(--status-danger); }
+
+.zone-details {
+  flex: 1;
+}
+
+.zone-details h4 {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.zone-meta {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.zone-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn-icon {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 6px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+}
+
+.btn-icon.danger:hover {
+  color: var(--status-danger);
+  background-color: rgba(239, 68, 68, 0.12);
+}
+
+/* Custom Toggle Switch */
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 38px;
+  height: 20px;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: var(--border-color);
+  transition: .3s;
+  border-radius: 20px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 14px;
+  width: 14px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: .3s;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: var(--status-success);
+}
+
+input:checked + .slider:before {
+  transform: translateX(18px);
+}

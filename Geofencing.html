@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Capsule Tracker | Geofencing</title>
+  <link rel="stylesheet" href="Geofencing_style.css">
+  <!-- Google Fonts & Material Symbols for Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+  <link rel="stylesheet" href="Geofencing_style.css">
+</head>
+<body>
+  <div class="app-layout">
+    
+    <!-- 1. SIDEBAR NAVIGATION -->
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="material-symbols-outlined brand-icon">watch_button</span>
+        <h2>Capsule Tracker</h2>
+      </div>
+
+      <nav class="nav-menu">
+        <ul>
+          <li>
+            <a href="index.html"><span class="material-symbols-outlined">dashboard</span> Live Dashboard</a>
+          </li>
+          <li class="active">
+            <a href="Geofencing.html"><span class="material-symbols-outlined">map</span> Geofences</a>
+          </li>
+          <li>
+            <a href="Tracking_History.html"><span class="material-symbols-outlined">history</span> Tracking History</a>
+          </li>
+          <li>
+            <a href="#"><span class="material-symbols-outlined">settings</span> Device Settings</a>
+          </li>
+        </ul>
+      </nav>
+
+      <div class="sidebar-footer">
+        <span class="status-dot online"></span> Receiver Connected
+      </div>
+    </aside>
+
+    <!-- 2. MAIN GEOFENCING CONTENT -->
+    <main class="main-content">
+      
+      <!-- TOP HEADER -->
+      <header class="top-header">
+        <div class="header-title">
+          <h1>Geofence Boundaries</h1>
+          <p>Define virtual perimeters and alert rules</p>
+        </div>
+
+        <div class="system-status">
+          <div class="status-badge lora">
+            <span class="material-symbols-outlined">shield</span>
+            <span>Active Zones: <strong>2 Active</strong></span>
+          </div>
+          <div class="status-badge tamper safe">
+            <span class="material-symbols-outlined">check_circle</span>
+            <span>Status: <strong>Inside Safe Zone</strong></span>
+          </div>
+        </div>
+      </header>
+
+      <!-- GEOFENCE GRID LAYOUT -->
+      <section class="geofence-grid">
+        
+        <!-- ZONE A: INTERACTIVE GEOFENCE MAP -->
+        <article class="card geofence-map-card">
+          <div class="card-header">
+            <h3>Boundary Preview Map</h3>
+            <span class="badge live-badge">Interactive Mode</span>
+          </div>
+          <div id="geofenceMap" class="map-placeholder">
+            <div class="map-mock-content">
+              <span class="material-symbols-outlined map-pin">radar</span>
+              <p>Geofence Map Engine Initializing...</p>
+              <small class="text-muted">Click map to auto-set boundary center</small>
+            </div>
+          </div>
+        </article>
+
+        <!-- RIGHT COLUMN: FORM & ACTIVE LIST -->
+        <div class="geofence-controls-column">
+          
+          <!-- ZONE B: CREATE/EDIT FORM -->
+          <article class="card geofence-form-card">
+            <h3>Add New Boundary</h3>
+            
+            <form id="geofenceForm" class="form-container">
+              
+              <!-- Zone Name -->
+              <div class="form-group">
+                <label for="zoneName">Boundary Name</label>
+                <input 
+                  type="text" 
+                  id="zoneName" 
+                  class="form-input" 
+                  placeholder="e.g. Home, School, Bastos Market" 
+                  required
+                >
+              </div>
+
+              <!-- Zone Type (Safe vs Danger) -->
+              <div class="form-group">
+                <label for="zoneType">Zone Type</label>
+                <select id="zoneType" class="form-input">
+                  <option value="safe">Safe Zone (Alert on Exit)</option>
+                  <option value="danger">Danger Zone (Alert on Entry)</option>
+                </select>
+              </div>
+
+              <!-- Radius Range Slider -->
+              <div class="form-group">
+                <div class="slider-header">
+                  <label for="zoneRadius">Perimeter Radius</label>
+                  <span class="slider-value"><strong id="radiusValue">200</strong> meters</span>
+                </div>
+                <input 
+                  type="range" 
+                  id="zoneRadius" 
+                  class="form-range" 
+                  min="50" 
+                  max="2000" 
+                  step="25" 
+                  value="200"
+                  oninput="document.getElementById('radiusValue').innerText = this.value"
+                >
+              </div>
+
+              <button type="submit" class="btn btn-primary">
+                <span class="material-symbols-outlined">add_location_alt</span> Save Boundary
+              </button>
+            </form>
+          </article>
+
+          <!-- ZONE C: ACTIVE BOUNDARIES LIST -->
+          <article class="card geofence-list-card">
+            <h3>Configured Boundaries</h3>
+            
+            <div class="zones-list" id="activeZonesList">
+              
+              <!-- Zone Item 1 (Safe) -->
+              <div class="zone-item safe-zone">
+                <div class="zone-icon">
+                  <span class="material-symbols-outlined">home_pin</span>
+                </div>
+                <div class="zone-details">
+                  <h4>Pinnacle Academy</h4>
+                  <span class="zone-meta">Safe Zone • 200m Radius</span>
+                </div>
+                <div class="zone-actions">
+                  <label class="toggle-switch">
+                    <input type="checkbox" checked>
+                    <span class="slider"></span>
+                  </label>
+                  <button class="btn-icon danger" title="Delete Zone">
+                    <span class="material-symbols-outlined">delete</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Zone Item 2 (Danger) -->
+              <div class="zone-item danger-zone">
+                <div class="zone-icon">
+                  <span class="material-symbols-outlined">warning</span>
+                </div>
+                <div class="zone-details">
+                  <h4>Main Highway Crossing</h4>
+                  <span class="zone-meta">Danger Zone • 100m Radius</span>
+                </div>
+                <div class="zone-actions">
+                  <label class="toggle-switch">
+                    <input type="checkbox" checked>
+                    <span class="slider"></span>
+                  </label>
+                  <button class="btn-icon danger" title="Delete Zone">
+                    <span class="material-symbols-outlined">delete</span>
+                  </button>
+                </div>
+              </div>
+
+            </div>
+          </article>
+
+        </div>
+
+      </section>
+    </main>
+  </div>
+
+  <script src="geofence.js"></script>
+</body>
+</html>

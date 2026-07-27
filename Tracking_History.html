@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Capsule Tracker | Tracking History</title>
+  <!-- Google Fonts & Material Symbols for Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+  <link rel="stylesheet" href="Tracking_History.css">
+</head>
+<body>
+  <div class="app-layout">
+    
+    <!-- 1. SIDEBAR NAVIGATION -->
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="material-symbols-outlined brand-icon">watch_button</span>
+        <h2>Capsule Tracker</h2>
+      </div>
+
+      <nav class="nav-menu">
+        <ul>
+          <li>
+            <a href="index.html"><span class="material-symbols-outlined">dashboard</span> Live Dashboard</a>
+          </li>
+          <li>
+            <a href="Geofencing.html"><span class="material-symbols-outlined">map</span> Geofences</a>
+          </li>
+          <li class="active">
+            <a href="Tracking_History.html"><span class="material-symbols-outlined">history</span> Tracking History</a>
+          </li>
+          <li>
+            <a href="#"><span class="material-symbols-outlined">settings</span> Device Settings</a>
+          </li>
+        </ul>
+      </nav>
+
+      <div class="sidebar-footer">
+        <span class="status-dot online"></span> Receiver Connected
+      </div>
+    </aside>
+
+    <!-- 2. MAIN HISTORY CONTENT -->
+    <main class="main-content">
+      
+      <!-- TOP HEADER WITH DATE FILTER -->
+      <header class="top-header">
+        <div class="header-title">
+          <h1>Route & Telemetry History</h1>
+          <p>Replay past movements and review incident logs</p>
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="history-filters">
+          <input type="date" id="historyDate" class="form-input" value="2026-07-23">
+          <select id="eventFilter" class="form-input">
+            <option value="all">All Events</option>
+            <option value="alerts">Alerts Only</option>
+            <option value="geofence">Geofence Breaches</option>
+            <option value="vitals">Vital Spikes</option>
+          </select>
+        </div>
+      </header>
+
+      <!-- SUMMARY STATS BAR -->
+      <section class="history-stats">
+        <div class="card stat-card">
+          <span class="material-symbols-outlined stat-icon">route</span>
+          <div>
+            <span class="stat-label">Total Distance</span>
+            <div class="stat-value">3.4 <small>km</small></div>
+          </div>
+        </div>
+
+        <div class="card stat-card">
+          <span class="material-symbols-outlined stat-icon">timer</span>
+          <div>
+            <span class="stat-label">Active Time</span>
+            <div class="stat-value">6 <small>hrs 20 mins</small></div>
+          </div>
+        </div>
+
+        <div class="card stat-card">
+          <span class="material-symbols-outlined stat-icon">favorite</span>
+          <div>
+            <span class="stat-label">Avg Heart Rate</span>
+            <div class="stat-value">82 <small>BPM</small></div>
+          </div>
+        </div>
+
+        <div class="card stat-card">
+          <span class="material-symbols-outlined stat-icon warning-icon">notification_important</span>
+          <div>
+            <span class="stat-label">Incidents Flagged</span>
+            <div class="stat-value">1 <small>Event</small></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- HISTORY MAIN GRID -->
+      <section class="history-grid">
+        
+        <!-- ZONE A: ROUTE PLAYBACK MAP -->
+        <article class="card history-map-card">
+          <div class="card-header">
+            <h3>Route Trajectory Replay</h3>
+            <span class="badge live-badge">24 Points Logged</span>
+          </div>
+
+          <div id="historyMap" class="map-placeholder">
+            <div class="map-mock-content">
+              <span class="material-symbols-outlined map-pin">timeline</span>
+              <p>GPS Breadcrumb Polyline Ready</p>
+            </div>
+          </div>
+
+          <!-- Playback Controls -->
+          <div class="playback-bar">
+            <button class="btn-icon-lg" id="playBtn" title="Play Replay">
+              <span class="material-symbols-outlined">play_arrow</span>
+            </button>
+            <input type="range" class="form-range playback-slider" id="timeSlider" min="0" max="100" value="45">
+            <span class="timestamp-display">14:22:05 WAT</span>
+          </div>
+        </article>
+
+        <!-- ZONE B: TIMESTAMPED TIMELINE LOG -->
+        <article class="card timeline-card">
+          <h3>Activity & Telemetry Log</h3>
+          
+          <div class="timeline-container">
+            
+            <!-- Log Event 1: Normal Ping -->
+            <div class="timeline-item">
+              <div class="timeline-badge info">
+                <span class="material-symbols-outlined">location_on</span>
+              </div>
+              <div class="timeline-content">
+                <div class="timeline-header">
+                  <strong>Periodic Location Update</strong>
+                  <span class="timeline-time">15:05 WAT</span>
+                </div>
+                <p>3.8482° N, 11.5025° E • HR: 76 BPM • SpO2: 99%</p>
+              </div>
+            </div>
+
+            <!-- Log Event 2: Geofence Breach Alert -->
+            <div class="timeline-item alert">
+              <div class="timeline-badge danger">
+                <span class="material-symbols-outlined">warning</span>
+              </div>
+              <div class="timeline-content">
+                <div class="timeline-header">
+                  <strong class="text-danger">Geofence Exit Detected</strong>
+                  <span class="timeline-time">14:22 WAT</span>
+                </div>
+                <p>Child exited <strong>Pinnacle Academy</strong> (Safe Zone). Speed: 4.2 km/h</p>
+              </div>
+            </div>
+
+            <!-- Log Event 3: Vital Check -->
+            <div class="timeline-item">
+              <div class="timeline-badge normal">
+                <span class="material-symbols-outlined">favorite</span>
+              </div>
+              <div class="timeline-content">
+                <div class="timeline-header">
+                  <strong>Vital Spike Recorded</strong>
+                  <span class="timeline-time">12:40 WAT</span>
+                </div>
+                <p>Heart rate elevated to 118 BPM during active play period.</p>
+              </div>
+            </div>
+
+            <!-- Log Event 4: Tamper System -->
+            <div class="timeline-item">
+              <div class="timeline-badge success">
+                <span class="material-symbols-outlined">lock</span>
+              </div>
+              <div class="timeline-content">
+                <div class="timeline-header">
+                  <strong>Band Latch Check</strong>
+                  <span class="timeline-time">08:00 WAT</span>
+                </div>
+                <p>Wristband secured. Battery at 100%.</p>
+              </div>
+            </div>
+
+          </div>
+        </article>
+
+      </section>
+    </main>
+  </div>
+
+  <script src="history.js"></script>
+</body>
+</html>

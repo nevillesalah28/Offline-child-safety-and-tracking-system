@@ -1,0 +1,351 @@
+/* ==========================================================================
+   1. DESIGN SYSTEM & VARIABLES
+   ========================================================================== */
+:root {
+  /* Color Palette - Dark IoT Theme */
+  --bg-dark: #0f172a;          /* Deep slate background */
+  --bg-card: #1e293b;          /* Elevated card surface */
+  --bg-card-hover: #334155;    /* Hover state for cards */
+  --border-color: #334155;     /* Subtle borders */
+  
+  /* Text Colors */
+  --text-main: #f8fafc;        /* High contrast primary text */
+  --text-muted: #94a3b8;       /* Secondary/label text */
+  
+  /* Status & Accent Colors */
+  --accent-primary: #38bdf8;   /* Cyan highlight */
+  --status-success: #22c55e;   /* Normal / Online Green */
+  --status-warning: #f59e0b;   /* Caution / Battery Amber */
+  --status-danger: #ef4444;    /* Tamper / SOS Red */
+  
+  /* Component-specific Accents */
+  --color-hr: #f43f5e;         /* Heart Rate Pink/Red */
+  --color-spo2: #06b6d4;       /* Oxygen Cyan */
+  --color-gps: #a855f7;        /* GPS Purple */
+  
+  /* Layout & Sizing */
+  --sidebar-width: 260px;
+  --radius-lg: 16px;
+  --radius-md: 10px;
+  --radius-sm: 6px;
+  --transition: all 0.25s ease-in-out;
+}
+
+/* ==========================================================================
+   2. BASE RESETS & ROOT LAYOUT
+   ========================================================================== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+body {
+  background-color: var(--bg-dark);
+  color: var(--text-main);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ==========================================================================
+   3. SIDEBAR STYLING
+   ========================================================================== */
+.sidebar {
+  width: var(--sidebar-width);
+  background-color: var(--bg-card);
+  border-right: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  padding: 24px;
+  position: fixed;
+  height: 100vh;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 36px;
+  color: var(--accent-primary);
+}
+
+.brand-icon {
+  font-size: 32px;
+}
+
+.brand h2 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.nav-menu ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.nav-menu a {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  color: var(--text-muted);
+  text-decoration: none;
+  border-radius: var(--radius-md);
+  font-weight: 500;
+  transition: var(--transition);
+}
+
+.nav-menu li.active a,
+.nav-menu a:hover {
+  background-color: var(--bg-card-hover);
+  color: var(--text-main);
+}
+
+.nav-menu li.active a {
+  color: var(--accent-primary);
+  border-left: 3px solid var(--accent-primary);
+}
+
+.sidebar-footer {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.status-dot.online {
+  background-color: var(--status-success);
+  box-shadow: 0 0 8px var(--status-success);
+}
+/* ==========================================================================
+   4. MAIN CONTENT & HEADER
+   ========================================================================== */
+.main-content {
+  margin-left: var(--sidebar-width);
+  flex: 1;
+  padding: 32px;
+}
+
+.top-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 28px;
+}
+
+.header-title h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+}
+
+.header-title p {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  margin-top: 4px;
+}
+
+/* Status Badges */
+.system-status {
+  display: flex;
+  gap: 12px;
+}
+
+.status-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  font-size: 0.85rem;
+}
+
+.status-badge.tamper.safe {
+  border-color: rgba(34, 197, 94, 0.4);
+  color: var(--status-success);
+}
+
+/* ==========================================================================
+   5. DASHBOARD GRID LAYOUT
+   ========================================================================== */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr; /* 2/3 for Map, 1/3 for Vitals & Controls */
+  gap: 24px;
+}
+
+/* Cards Base */
+.card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+}
+
+/* Zone A: Map Card (Spans full left column) */
+.map-card {
+  grid-row: span 2;
+  display: flex;
+  flex-direction: column;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.live-badge {
+  background-color: rgba(34, 197, 94, 0.15);
+  color: var(--status-success);
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.map-placeholder {
+  flex: 1;
+  min-height: 400px;
+  background-color: #0b1120;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed var(--border-color);
+}
+
+.map-mock-content {
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.map-pin {
+  font-size: 48px;
+  color: var(--status-danger);
+  animation: pulse 1.5s infinite alternate;
+}
+
+@keyframes pulse {
+  from { transform: scale(1); opacity: 0.8; }
+  to { transform: scale(1.2); opacity: 1; }
+}
+
+/* Zone B: Vitals Grid (Right Column, 2x2 grid inside) */
+.vitals-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.vital-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+}
+
+.vital-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hr-bg { background-color: rgba(244, 63, 94, 0.15); color: var(--color-hr); }
+.spo2-bg { background-color: rgba(6, 182, 212, 0.15); color: var(--color-spo2); }
+.gps-bg { background-color: rgba(168, 85, 247, 0.15); color: var(--color-gps); }
+.bat-bg { background-color: rgba(56, 189, 248, 0.15); color: var(--accent-primary); }
+
+.vital-label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  display: block;
+}
+
+.vital-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 2px 0;
+}
+
+.vital-value-sm {
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin: 4px 0;
+}
+
+.vital-status {
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.status-normal { color: var(--status-success); }
+.status-info { color: var(--text-muted); }
+
+/* Zone C: Controls Card */
+.controls-card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.button-group {
+  display: flex;
+  gap: 12px;
+}
+
+.btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px;
+  border-radius: var(--radius-md);
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.btn-secondary {
+  background-color: var(--bg-card-hover);
+  color: var(--text-main);
+}
+
+.btn-secondary:hover {
+  background-color: #475569;
+}
+
+.btn-danger {
+  background-color: var(--status-danger);
+  color: #ffffff;
+}
+
+.btn-danger:hover {
+  background-color: #dc2626;
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.4);
+}
