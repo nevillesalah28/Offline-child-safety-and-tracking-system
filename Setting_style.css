@@ -1,20 +1,24 @@
 /* ==========================================================================
-   1. DESIGN SYSTEM & VARIABLES
+   1. DESIGN SYSTEM & VARIABLES (Matched strictly to index_style.css)
    ========================================================================== */
 :root {
-  --bg-dark: #0f172a;          /* Slate dark background */
+  /* Color Palette - Dark IoT Theme */
+  --bg-dark: #0f172a;          /* Deep slate background */
   --bg-card: #1e293b;          /* Elevated card surface */
-  --bg-card-hover: #334155;    /* Interactive elements */
-  --border-color: #334155;     /* Structural lines */
+  --bg-card-hover: #334155;    /* Hover state for cards */
+  --border-color: #334155;     /* Subtle borders */
   
-  --text-main: #f8fafc;        /* Main text */
-  --text-muted: #94a3b8;       /* Labels and secondary text */
+  /* Text Colors */
+  --text-main: #f8fafc;        /* High contrast primary text */
+  --text-muted: #94a3b8;       /* Secondary/label text */
   
-  --accent-primary: #38bdf8;   /* Cyan active highlights */
-  --status-success: #22c55e;   /* Normal / Connected */
-  --status-warning: #f59e0b;   /* Caution / Battery Low */
-  --status-danger: #ef4444;    /* Strap Removal / SOS */
+  /* Status & Accent Colors */
+  --accent-primary: #38bdf8;   /* Cyan highlight */
+  --status-success: #22c55e;   /* Normal / Online Green */
+  --status-warning: #f59e0b;   /* Caution / Battery Amber */
+  --status-danger: #ef4444;    /* Tamper / SOS Red */
   
+  /* Layout & Sizing */
   --sidebar-width: 260px;
   --radius-lg: 16px;
   --radius-md: 10px;
@@ -23,7 +27,7 @@
 }
 
 /* ==========================================================================
-   2. BASE RESETS & APP SHELL
+   2. BASE RESETS & LAYOUT
    ========================================================================== */
 * {
   margin: 0;
@@ -45,7 +49,7 @@ body {
 }
 
 /* ==========================================================================
-   3. SIDEBAR NAVIGATION
+   3. SIDEBAR STYLING (Identical to index_style.css)
    ========================================================================== */
 .sidebar {
   width: var(--sidebar-width);
@@ -56,7 +60,6 @@ body {
   padding: 24px;
   position: fixed;
   height: 100vh;
-  z-index: 100;
 }
 
 .brand {
@@ -68,11 +71,11 @@ body {
 }
 
 .brand-icon {
-  font-size: 26px;
+  font-size: 32px;
 }
 
 .brand h2 {
-  font-size: 1.2rem;
+  font-size: 1.25rem;
   font-weight: 700;
   color: var(--text-main);
 }
@@ -195,8 +198,9 @@ body {
   color: var(--text-main);
 }
 
-.card-header h3 i {
+.header-icon {
   color: var(--accent-primary);
+  font-size: 20px;
 }
 
 .badge {
@@ -216,7 +220,7 @@ body {
   color: var(--status-success);
 }
 
-/* Profile Section Header */
+/* Profile Section */
 .profile-header-inline {
   display: flex;
   align-items: center;
@@ -249,17 +253,20 @@ body {
   position: absolute;
   bottom: -2px;
   right: -2px;
-  width: 20px;
-  height: 20px;
+  width: 22px;
+  height: 22px;
   border-radius: 50%;
   background-color: var(--bg-card);
   border: 1px solid var(--border-color);
   color: var(--text-main);
-  font-size: 0.6rem;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.btn-avatar-edit .material-symbols-outlined {
+  font-size: 12px;
 }
 
 .profile-details h4 {
@@ -317,27 +324,6 @@ body {
   cursor: pointer;
 }
 
-.input-with-button {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.btn-icon-inside {
-  position: absolute;
-  right: 10px;
-  background: none;
-  border: none;
-  color: var(--text-muted);
-  cursor: pointer;
-  font-size: 0.9rem;
-  transition: var(--transition);
-}
-
-.btn-icon-inside:hover {
-  color: var(--accent-primary);
-}
-
 .slider-header {
   display: flex;
   justify-content: space-between;
@@ -359,9 +345,7 @@ body {
   margin-top: 4px;
 }
 
-/* ==========================================================================
-   7. TOGGLE LIST & SWITCHES
-   ========================================================================== */
+/* Toggle Switches */
 .toggle-list {
   display: flex;
   flex-direction: column;
@@ -382,10 +366,6 @@ body {
   font-size: 0.88rem;
   font-weight: 600;
   margin-bottom: 2px;
-}
-
-.toggle-info p {
-  font-size: 0.78rem;
 }
 
 .toggle-switch {
@@ -432,21 +412,29 @@ input:checked + .slider:before {
 }
 
 /* ==========================================================================
-   8. BUTTONS & UTILITIES
+   7. BUTTONS & UTILITIES
    ========================================================================== */
-.btn-primary {
-  background-color: var(--accent-primary);
-  color: var(--bg-dark);
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   padding: 10px 18px;
   border-radius: var(--radius-md);
   border: none;
   font-weight: 600;
   font-size: 0.9rem;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 8px;
   transition: var(--transition);
+}
+
+.btn .material-symbols-outlined {
+  font-size: 18px;
+}
+
+.btn-primary {
+  background-color: var(--accent-primary);
+  color: var(--bg-dark);
 }
 
 .btn-primary:hover {
@@ -455,23 +443,13 @@ input:checked + .slider:before {
 }
 
 .btn-secondary {
-  background-color: transparent;
+  background-color: var(--bg-card-hover);
   color: var(--text-main);
   border: 1px solid var(--border-color);
-  padding: 10px 18px;
-  border-radius: var(--radius-md);
-  font-weight: 500;
-  font-size: 0.9rem;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  transition: var(--transition);
 }
 
 .btn-secondary:hover {
-  background-color: var(--bg-card-hover);
-  border-color: var(--text-muted);
+  background-color: #475569;
 }
 
 .btn-sm {

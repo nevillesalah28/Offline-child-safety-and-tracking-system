@@ -2,7 +2,7 @@
    1. DESIGN SYSTEM & VARIABLES
    ========================================================================== */
 :root {
-  /* Dark IoT Theme Color Palette */
+  /* Color Palette - Dark IoT Theme */
   --bg-dark: #0f172a;          /* Deep slate background */
   --bg-card: #1e293b;          /* Elevated card surface */
   --bg-card-hover: #334155;    /* Hover state for cards */
@@ -14,9 +14,14 @@
   
   /* Status & Accent Colors */
   --accent-primary: #38bdf8;   /* Cyan highlight */
-  --status-success: #22c55e;   /* Safe Zone Green */
+  --status-success: #22c55e;   /* Normal / Online Green */
   --status-warning: #f59e0b;   /* Caution / Battery Amber */
-  --status-danger: #ef4444;    /* Danger Zone Red */
+  --status-danger: #ef4444;    /* Tamper / SOS Red */
+  
+  /* Component-specific Accents */
+  --color-hr: #f43f5e;         /* Heart Rate Pink/Red */
+  --color-spo2: #06b6d4;       /* Oxygen Cyan */
+  --color-gps: #a855f7;        /* GPS Purple */
   
   /* Layout & Sizing */
   --sidebar-width: 260px;
@@ -60,7 +65,6 @@ body {
   padding: 24px;
   position: fixed;
   height: 100vh;
-  z-index: 100;
 }
 
 .brand {

@@ -3,58 +3,61 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Wristband System Settings | Smart Access</title>
+  <title>Capsule Tracker | Device Settings</title>
+  <!-- Google Fonts & Material Symbols for Icons (Matching index.html) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
   <link rel="stylesheet" href="Setting_style.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
   <div class="app-layout">
     
-    <!-- SIDEBAR NAVIGATION -->
+    <!-- 1. SIDEBAR NAVIGATION (Matched strictly to index.html) -->
     <aside class="sidebar">
       <div class="brand">
-        <i class="fa-solid fa-band-aid brand-icon"></i>
-        <h2>Smart Access</h2>
+        <span class="material-symbols-outlined brand-icon">watch_button</span>
+        <h2>Capsule Tracker</h2>
       </div>
 
       <nav class="nav-menu">
         <ul>
           <li>
-            <a href="dashboard.html"><i class="fa-solid fa-chart-pie"></i> Overview</a>
+            <a href="index.html"><span class="material-symbols-outlined">dashboard</span> Live Dashboard</a>
           </li>
           <li>
-            <a href="wristbands.html"><i class="fa-solid fa-vr-cardboard"></i> Wristbands & Assets</a>
+            <a href="Geofencing.html"><span class="material-symbols-outlined">map</span> Geofences</a>
           </li>
           <li>
-            <a href="geofences.html"><i class="fa-solid fa-map-location-dot"></i> Geofencing</a>
-          </li>
-          <li>
-            <a href="logs.html"><i class="fa-solid fa-list-check"></i> Audit Logs</a>
+            <a href="Tracking_History.html"><span class="material-symbols-outlined">history</span> Tracking History</a>
           </li>
           <li class="active">
-            <a href="settings.html"><i class="fa-solid fa-sliders"></i> Settings</a>
+            <a href="Setting.html"><span class="material-symbols-outlined">settings</span> Device Settings</a>
           </li>
         </ul>
       </nav>
 
       <div class="sidebar-footer">
-        <span class="status-dot online"></span>
-        <span>Gateway Connected</span>
+        <span class="status-dot online"></span> Receiver Connected
       </div>
     </aside>
 
-    <!-- MAIN CONTENT AREA -->
+    <!-- 2. MAIN SETTINGS CONTENT -->
     <main class="main-content">
       
       <!-- TOP HEADER -->
       <header class="top-header">
         <div class="header-title">
-          <h1>Wristband System Settings</h1>
-          <p>Configure wearable beacon ranges, wristband sensors, emergency alerts, and database sync</p>
+          <h1>Device Settings</h1>
+          <p>Configure Capsule Tracker parameters, telemetry sync, and safety triggers</p>
         </div>
         <div class="header-actions">
-          <button class="btn-secondary" type="button"><i class="fa-solid fa-rotate-left"></i> Reset Defaults</button>
-          <button class="btn-primary" form="settings-form" type="submit"><i class="fa-solid fa-floppy-disk"></i> Save Changes</button>
+          <button class="btn btn-secondary" type="button">
+            <span class="material-symbols-outlined">restart_alt</span> Reset Defaults
+          </button>
+          <button class="btn btn-primary" form="settings-form" type="submit">
+            <span class="material-symbols-outlined">save</span> Save Changes
+          </button>
         </div>
       </header>
 
@@ -62,86 +65,85 @@
       <form id="settings-form" class="settings-grid" onsubmit="event.preventDefault();">
         
         <!-- SECTION 1: ADMIN PROFILE -->
-        <section class="card settings-card">
+        <article class="card settings-card">
           <div class="card-header">
-            <h3><i class="fa-solid fa-user-gear"></i> System Admin Profile</h3>
-            <span class="badge badge-info">Administrator</span>
+            <h3><span class="material-symbols-outlined header-icon">manage_accounts</span> System Admin Profile</h3>
+            <span class="badge badge-info">Admin</span>
           </div>
           
           <div class="profile-header-inline">
             <div class="avatar-container">
               <div class="avatar-placeholder">LN</div>
               <button type="button" class="btn-avatar-edit" title="Change Avatar">
-                <i class="fa-solid fa-pen"></i>
+                <span class="material-symbols-outlined">edit</span>
               </button>
             </div>
             <div class="profile-details">
               <h4>Neville</h4>
-              <p class="text-muted">Lead Systems Administrator</p>
+              <p class="text-muted">Primary Monitor Administrator</p>
             </div>
           </div>
 
           <div class="form-container">
             <div class="form-group">
-              <label for="admin-name">Full Name</label>
+              <label for="admin-name">Account Name</label>
               <input type="text" id="admin-name" class="form-input" value="Neville">
             </div>
 
             <div class="form-group">
               <label for="admin-email">Emergency Alert Email</label>
-              <input type="email" id="admin-email" class="form-input" value="neville@smartaccess.local">
+              <input type="email" id="admin-email" class="form-input" value="neville@capsuletracker.local">
             </div>
 
             <div class="form-group">
-              <label for="admin-password">System Password</label>
-              <input type="password" id="admin-password" class="form-input" placeholder="••••••••••••">
+              <label for="admin-password">Access PIN / Password</label>
+              <input type="password" id="admin-password" class="form-input" placeholder="••••••••">
             </div>
           </div>
-        </section>
+        </article>
 
-        <!-- SECTION 2: WRISTBAND & SENSOR CONFIGURATION -->
-        <section class="card settings-card">
+        <!-- SECTION 2: LORA TELEMETRY & HARDWARE -->
+        <article class="card settings-card">
           <div class="card-header">
-            <h3><i class="fa-solid fa-hard-drive"></i> Wristband Sensor Controls</h3>
-            <span class="badge badge-info">BLE Wearables</span>
+            <h3><span class="material-symbols-outlined header-icon">wifi_tethering</span> LoRa Telemetry & GPS</h3>
+            <span class="badge badge-info">Hardware</span>
           </div>
 
           <div class="form-container">
             <div class="form-group">
-              <label for="beacon-range">Proximity Range Threshold (RSSI)</label>
-              <select id="beacon-range" class="form-input form-select">
-                <option value="near">Immediate Proximity (~1 Meter)</option>
-                <option value="medium" selected>Standard Doorway Range (~3 Meters)</option>
-                <option value="far">Wide Zone Tracking (~10 Meters)</option>
+              <label for="lora-freq">LoRa Operating Frequency</label>
+              <select id="lora-freq" class="form-input form-select">
+                <option value="868">868 MHz (EU / Africa Standard)</option>
+                <option value="915" selected>915 MHz (US / Off-Grid Band)</option>
+                <option value="433">433 MHz (Long Range)</option>
               </select>
-              <span class="text-muted">Determines how close a wristband must be to unlock access points.</span>
             </div>
 
             <div class="form-group">
-              <label for="heartbeat-interval">Sync / Ping Interval</label>
-              <select id="heartbeat-interval" class="form-input form-select">
-                <option value="1">1 Second (Real-time Tracking / High Power)</option>
+              <label for="gps-ping">GPS Ping Interval</label>
+              <select id="gps-ping" class="form-input form-select">
+                <option value="1">1 Second (Real-Time Tracking)</option>
                 <option value="5" selected>5 Seconds (Balanced Mode)</option>
-                <option value="15">15 Seconds (Max Battery Saver)</option>
+                <option value="15">15 Seconds (Power Saver)</option>
               </select>
             </div>
 
             <div class="form-group">
               <div class="slider-header">
-                <label for="sos-hold-time">SOS Button Trigger Hold</label>
+                <label for="sos-delay">SOS Button Hold Trigger</label>
                 <span class="slider-value" id="sos-val">3 Seconds</span>
               </div>
-              <input type="range" id="sos-hold-time" class="form-range" min="1" max="10" value="3" 
+              <input type="range" id="sos-delay" class="form-range" min="1" max="10" value="3" 
                      oninput="document.getElementById('sos-val').innerText = this.value + ' Seconds'">
-              <span class="text-muted">Prevents accidental panic alerts on the wristband.</span>
+              <span class="text-muted">Prevents accidental panic triggers on the wristband.</span>
             </div>
           </div>
-        </section>
+        </article>
 
-        <!-- SECTION 3: WRISTBAND ALERT RULES -->
-        <section class="card settings-card">
+        <!-- SECTION 3: SAFETY ALERTS -->
+        <article class="card settings-card">
           <div class="card-header">
-            <h3><i class="fa-solid fa-bell"></i> Wristband Safety & Alerts</h3>
+            <h3><span class="material-symbols-outlined header-icon">notifications</span> Safety & Alarm Triggers</h3>
           </div>
 
           <div class="toggle-list">
@@ -149,7 +151,7 @@
             <div class="toggle-item">
               <div class="toggle-info">
                 <h4>Strap Removal / Tamper Alarm</h4>
-                <p class="text-muted">Alert instantly if optical clasp sensor detects wristband unbuckling</p>
+                <p class="text-muted">Sound siren if wristband clasp is unbuckled or cut</p>
               </div>
               <label class="toggle-switch">
                 <input type="checkbox" checked>
@@ -159,8 +161,8 @@
 
             <div class="toggle-item">
               <div class="toggle-info">
-                <h4>Geofence Breach Emergency Alert</h4>
-                <p class="text-muted">Flag admin if a wristband exits defined security perimeter</p>
+                <h4>Geofence Boundary Violation</h4>
+                <p class="text-muted">Trigger warning if child exits safe zone radius</p>
               </div>
               <label class="toggle-switch">
                 <input type="checkbox" checked>
@@ -170,8 +172,8 @@
 
             <div class="toggle-item">
               <div class="toggle-info">
-                <h4>Low Wristband Battery Warning</h4>
-                <p class="text-muted">Push notification when wristband battery falls below 15%</p>
+                <h4>Low Wristband Battery Alert</h4>
+                <p class="text-muted">Notify dashboard when battery drops below 15%</p>
               </div>
               <label class="toggle-switch">
                 <input type="checkbox" checked>
@@ -181,8 +183,8 @@
 
             <div class="toggle-item">
               <div class="toggle-info">
-                <h4>Inactivity / Offline Timeout Alarm</h4>
-                <p class="text-muted">Notify if a registered wristband stops transmitting pings for >2 min</p>
+                <h4>Vitals Anomaly Alert (BPM / SpO2)</h4>
+                <p class="text-muted">Flag warning if vitals deviate from normal levels</p>
               </div>
               <label class="toggle-switch">
                 <input type="checkbox" checked>
@@ -191,49 +193,39 @@
             </div>
 
           </div>
-        </section>
+        </article>
 
-        <!-- SECTION 4: GATEWAY & MYSQL DATABASE -->
-        <section class="card settings-card">
+        <!-- SECTION 4: RECEIVER DONGLE & LOCAL SYNC -->
+        <article class="card settings-card">
           <div class="card-header">
-            <h3><i class="fa-solid fa-database"></i> Gateway & MySQL Database</h3>
-            <span class="badge badge-success">Connected</span>
+            <h3><span class="material-symbols-outlined header-icon">usb</span> Receiver Dongle & Storage</h3>
+            <span class="badge badge-success">Online</span>
           </div>
 
           <div class="form-container">
             <div class="form-row">
               <div class="form-group flex-2">
-                <label for="db-host">MySQL Server Address</label>
-                <input type="text" id="db-host" class="form-input" value="127.0.0.1">
+                <label for="com-port">Serial / USB Port</label>
+                <input type="text" id="com-port" class="form-input" value="COM3 (LoRa Receiver)">
               </div>
               <div class="form-group flex-1">
-                <label for="db-port">Port</label>
-                <input type="text" id="db-port" class="form-input" value="3306">
+                <label for="baud-rate">Baud Rate</label>
+                <input type="text" id="baud-rate" class="form-input" value="115200">
               </div>
             </div>
 
             <div class="form-group">
-              <label for="db-name">Database Name</label>
-              <input type="text" id="db-name" class="form-input" value="wristband_access_db">
-            </div>
-
-            <div class="form-group">
-              <label for="api-key">Receiver Gateway Token</label>
-              <div class="input-with-button">
-                <input type="password" id="api-key" class="form-input" value="wb_gateway_883921004a7" readonly>
-                <button type="button" class="btn-icon-inside" title="Copy Key">
-                  <i class="fa-solid fa-copy"></i>
-                </button>
-              </div>
+              <label for="db-name">Local Telemetry Log File</label>
+              <input type="text" id="db-name" class="form-input" value="capsule_telemetry.db">
             </div>
 
             <div class="db-action-row">
-              <button type="button" class="btn-secondary btn-sm">
-                <i class="fa-solid fa-plug"></i> Test Gateway Link
+              <button type="button" class="btn btn-secondary btn-sm">
+                <span class="material-symbols-outlined">cable</span> Test Serial Connection
               </button>
             </div>
           </div>
-        </section>
+        </article>
 
       </form>
     </main>
