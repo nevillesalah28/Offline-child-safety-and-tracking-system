@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Capsule Tracker | Geofencing</title>
-  <link rel="stylesheet" href="Geofencing_style.css">
   <!-- Google Fonts & Material Symbols for Icons -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
@@ -15,7 +14,7 @@
   <div class="app-layout">
     
     <!-- 1. SIDEBAR NAVIGATION -->
-    <aside class="sidebar">
+    <aside class="sidebar" id="sidebar">
       <div class="brand">
         <span class="material-symbols-outlined brand-icon">watch_button</span>
         <h2>Capsule Tracker</h2>
@@ -46,17 +45,24 @@
     <!-- 2. MAIN GEOFENCING CONTENT -->
     <main class="main-content">
       
-      <!-- TOP HEADER -->
+      <!-- TOP HEADER (Title & Sidebar Toggle Button) -->
       <header class="top-header">
-        <div class="header-title">
-          <h1>Geofence Boundaries</h1>
-          <p>Define virtual perimeters and alert rules</p>
+        <div class="header-left">
+          <!-- SIDEBAR TOGGLE BUTTON -->
+          <button id="sidebarToggle" class="btn-toggle" aria-label="Toggle Navigation">
+            <span class="material-symbols-outlined">menu</span>
+          </button>
+
+          <div class="header-title">
+            <h1>Geofence Boundaries</h1>
+            <p>Define virtual perimeters and alert rules</p>
+          </div>
         </div>
 
         <div class="system-status">
           <div class="status-badge lora">
             <span class="material-symbols-outlined">shield</span>
-            <span>Active Zones: <strong>2 Active</strong></span>
+            <span>Active Zones: <strong id="activeZoneCount">2 Active</strong></span>
           </div>
           <div class="status-badge tamper safe">
             <span class="material-symbols-outlined">check_circle</span>
@@ -127,7 +133,6 @@
                   max="2000" 
                   step="25" 
                   value="200"
-                  oninput="document.getElementById('radiusValue').innerText = this.value"
                 >
               </div>
 
@@ -142,47 +147,7 @@
             <h3>Configured Boundaries</h3>
             
             <div class="zones-list" id="activeZonesList">
-              
-              <!-- Zone Item 1 (Safe) -->
-              <div class="zone-item safe-zone">
-                <div class="zone-icon">
-                  <span class="material-symbols-outlined">home_pin</span>
-                </div>
-                <div class="zone-details">
-                  <h4>Pinnacle Academy</h4>
-                  <span class="zone-meta">Safe Zone • 200m Radius</span>
-                </div>
-                <div class="zone-actions">
-                  <label class="toggle-switch">
-                    <input type="checkbox" checked>
-                    <span class="slider"></span>
-                  </label>
-                  <button class="btn-icon danger" title="Delete Zone">
-                    <span class="material-symbols-outlined">delete</span>
-                  </button>
-                </div>
-              </div>
-
-              <!-- Zone Item 2 (Danger) -->
-              <div class="zone-item danger-zone">
-                <div class="zone-icon">
-                  <span class="material-symbols-outlined">warning</span>
-                </div>
-                <div class="zone-details">
-                  <h4>Main Highway Crossing</h4>
-                  <span class="zone-meta">Danger Zone • 100m Radius</span>
-                </div>
-                <div class="zone-actions">
-                  <label class="toggle-switch">
-                    <input type="checkbox" checked>
-                    <span class="slider"></span>
-                  </label>
-                  <button class="btn-icon danger" title="Delete Zone">
-                    <span class="material-symbols-outlined">delete</span>
-                  </button>
-                </div>
-              </div>
-
+              <!-- Dynamically rendered or pre-populated via JS -->
             </div>
           </article>
 
@@ -192,6 +157,6 @@
     </main>
   </div>
 
-  <script src="geofence.js"></script>
+  <script src="Geofencing.js"></script>
 </body>
 </html>

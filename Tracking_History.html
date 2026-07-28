@@ -14,7 +14,7 @@
   <div class="app-layout">
     
     <!-- 1. SIDEBAR NAVIGATION -->
-    <aside class="sidebar">
+    <aside class="sidebar" id="sidebar">
       <div class="brand">
         <span class="material-symbols-outlined brand-icon">watch_button</span>
         <h2>Capsule Tracker</h2>
@@ -32,7 +32,7 @@
             <a href="Tracking_History.html"><span class="material-symbols-outlined">history</span> Tracking History</a>
           </li>
           <li>
-            <a href="setting.html"><span class="material-symbols-outlined">settings</span> Device Settings</a>
+            <a href="Setting.html"><span class="material-symbols-outlined">settings</span> Device Settings</a>
           </li>
         </ul>
       </nav>
@@ -45,11 +45,18 @@
     <!-- 2. MAIN HISTORY CONTENT -->
     <main class="main-content">
       
-      <!-- TOP HEADER WITH DATE FILTER -->
+      <!-- TOP HEADER WITH SIDEBAR TOGGLE & DATE FILTER -->
       <header class="top-header">
-        <div class="header-title">
-          <h1>Route & Telemetry History</h1>
-          <p>Replay past movements and review incident logs</p>
+        <div class="header-left">
+          <!-- SIDEBAR TOGGLE BUTTON -->
+          <button id="sidebarToggle" class="btn-toggle" aria-label="Toggle Navigation">
+            <span class="material-symbols-outlined">menu</span>
+          </button>
+
+          <div class="header-title">
+            <h1>Route & Telemetry History</h1>
+            <p>Replay past movements and review incident logs</p>
+          </div>
         </div>
 
         <!-- Filter Bar -->
@@ -106,23 +113,23 @@
         <article class="card history-map-card">
           <div class="card-header">
             <h3>Route Trajectory Replay</h3>
-            <span class="badge live-badge">24 Points Logged</span>
+            <span class="badge live-badge" id="pointCountBadge">24 Points Logged</span>
           </div>
 
           <div id="historyMap" class="map-placeholder">
             <div class="map-mock-content">
               <span class="material-symbols-outlined map-pin">timeline</span>
-              <p>GPS Breadcrumb Polyline Ready</p>
+              <p>GPS Breadcrumb Map Engine Initializing...</p>
             </div>
           </div>
 
           <!-- Playback Controls -->
           <div class="playback-bar">
             <button class="btn-icon-lg" id="playBtn" title="Play Replay">
-              <span class="material-symbols-outlined">play_arrow</span>
+              <span class="material-symbols-outlined" id="playIcon">play_arrow</span>
             </button>
-            <input type="range" class="form-range playback-slider" id="timeSlider" min="0" max="100" value="45">
-            <span class="timestamp-display">14:22:05 WAT</span>
+            <input type="range" class="form-range playback-slider" id="timeSlider" min="0" max="100" value="0">
+            <span class="timestamp-display" id="currentTimeDisplay">08:00:00 WAT</span>
           </div>
         </article>
 
@@ -130,10 +137,10 @@
         <article class="card timeline-card">
           <h3>Activity & Telemetry Log</h3>
           
-          <div class="timeline-container">
+          <div class="timeline-container" id="timelineLog">
             
             <!-- Log Event 1: Normal Ping -->
-            <div class="timeline-item">
+            <div class="timeline-item" data-type="vitals">
               <div class="timeline-badge info">
                 <span class="material-symbols-outlined">location_on</span>
               </div>
@@ -147,7 +154,7 @@
             </div>
 
             <!-- Log Event 2: Geofence Breach Alert -->
-            <div class="timeline-item alert">
+            <div class="timeline-item alert" data-type="geofence alerts">
               <div class="timeline-badge danger">
                 <span class="material-symbols-outlined">warning</span>
               </div>
@@ -161,7 +168,7 @@
             </div>
 
             <!-- Log Event 3: Vital Check -->
-            <div class="timeline-item">
+            <div class="timeline-item" data-type="vitals">
               <div class="timeline-badge normal">
                 <span class="material-symbols-outlined">favorite</span>
               </div>
@@ -174,8 +181,8 @@
               </div>
             </div>
 
-            <!-- Log Event 4: Tamper System -->
-            <div class="timeline-item">
+            <!-- Log Event 4: Band Check -->
+            <div class="timeline-item" data-type="vitals">
               <div class="timeline-badge success">
                 <span class="material-symbols-outlined">lock</span>
               </div>
