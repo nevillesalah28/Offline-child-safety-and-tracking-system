@@ -18,7 +18,7 @@
   <div class="app-layout">
     
     <!-- 1. SIDEBAR NAVIGATION -->
-    <aside class="sidebar">
+    <aside class="sidebar" id="sidebar">
       <div class="brand">
         <span class="material-symbols-outlined brand-icon">watch_button</span>
         <h2>Capsule Tracker</h2>
@@ -49,11 +49,18 @@
     <!-- 2. MAIN DASHBOARD CONTENT -->
     <main class="main-content">
       
-      <!-- TOP HEADER (Telemetry Summary) -->
+      <!-- TOP HEADER (Telemetry Summary & Toggle Controls) -->
       <header class="top-header">
-        <div class="header-title">
-          <h1>Live Child Safety Monitor</h1>
-          <p>Real-time off-grid telemetry via LoRa</p>
+        <div class="header-left">
+          <!-- SIDEBAR TOGGLE BUTTON -->
+          <button id="sidebarToggle" class="btn-toggle" aria-label="Toggle Navigation">
+            <span class="material-symbols-outlined">menu</span>
+          </button>
+          
+          <div class="header-title">
+            <h1>Live Child Safety Monitor</h1>
+            <p>Real-time off-grid telemetry via LoRa</p>
+          </div>
         </div>
 
         <div class="system-status">
@@ -81,7 +88,7 @@
             <h3>Live GPS Location</h3>
             <span class="badge live-badge">Live Feed</span>
           </div>
-          <!-- Placeholder container where Leaflet.js or map canvas will mount -->
+          <!-- Leaflet.js Container -->
           <div id="map" class="map-placeholder">
             <div class="map-mock-content">
               <span class="material-symbols-outlined map-pin">location_on</span>
@@ -161,6 +168,6 @@
 
   </div>
 
-  <script src="script.js"></script>
+  <script src="index.js"></script>
 </body>
 </html>

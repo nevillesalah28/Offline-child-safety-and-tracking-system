@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Capsule Tracker | Device Settings</title>
-  <!-- Google Fonts & Material Symbols for Icons (Matching index.html) -->
+  <!-- Google Fonts & Material Symbols for Icons -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
@@ -13,8 +13,8 @@
 <body>
   <div class="app-layout">
     
-    <!-- 1. SIDEBAR NAVIGATION (Matched strictly to index.html) -->
-    <aside class="sidebar">
+    <!-- 1. SIDEBAR NAVIGATION -->
+    <aside class="sidebar" id="sidebar">
       <div class="brand">
         <span class="material-symbols-outlined brand-icon">watch_button</span>
         <h2>Capsule Tracker</h2>
@@ -45,14 +45,22 @@
     <!-- 2. MAIN SETTINGS CONTENT -->
     <main class="main-content">
       
-      <!-- TOP HEADER -->
+      <!-- TOP HEADER WITH SIDEBAR TOGGLE & ACTIONS -->
       <header class="top-header">
-        <div class="header-title">
-          <h1>Device Settings</h1>
-          <p>Configure Capsule Tracker parameters, telemetry sync, and safety triggers</p>
+        <div class="header-left">
+          <!-- SIDEBAR TOGGLE BUTTON -->
+          <button id="sidebarToggle" class="btn-toggle" aria-label="Toggle Navigation">
+            <span class="material-symbols-outlined">menu</span>
+          </button>
+
+          <div class="header-title">
+            <h1>Device Settings</h1>
+            <p>Configure Capsule Tracker parameters, telemetry sync, and safety triggers</p>
+          </div>
         </div>
+
         <div class="header-actions">
-          <button class="btn btn-secondary" type="button">
+          <button class="btn btn-secondary" id="resetDefaultsBtn" type="button">
             <span class="material-symbols-outlined">restart_alt</span> Reset Defaults
           </button>
           <button class="btn btn-primary" form="settings-form" type="submit">
@@ -62,7 +70,7 @@
       </header>
 
       <!-- SETTINGS GRID -->
-      <form id="settings-form" class="settings-grid" onsubmit="event.preventDefault();">
+      <form id="settings-form" class="settings-grid">
         
         <!-- SECTION 1: ADMIN PROFILE -->
         <article class="card settings-card">
@@ -73,13 +81,13 @@
           
           <div class="profile-header-inline">
             <div class="avatar-container">
-              <div class="avatar-placeholder">LN</div>
-              <button type="button" class="btn-avatar-edit" title="Change Avatar">
+              <div class="avatar-placeholder" id="avatarText">LN</div>
+              <button type="button" class="btn-avatar-edit" id="changeAvatarBtn" title="Change Avatar">
                 <span class="material-symbols-outlined">edit</span>
               </button>
             </div>
             <div class="profile-details">
-              <h4>Neville</h4>
+              <h4 id="profileDisplayName">Neville</h4>
               <p class="text-muted">Primary Monitor Administrator</p>
             </div>
           </div>
@@ -133,8 +141,7 @@
                 <label for="sos-delay">SOS Button Hold Trigger</label>
                 <span class="slider-value" id="sos-val">3 Seconds</span>
               </div>
-              <input type="range" id="sos-delay" class="form-range" min="1" max="10" value="3" 
-                     oninput="document.getElementById('sos-val').innerText = this.value + ' Seconds'">
+              <input type="range" id="sos-delay" class="form-range" min="1" max="10" value="3">
               <span class="text-muted">Prevents accidental panic triggers on the wristband.</span>
             </div>
           </div>
@@ -154,7 +161,7 @@
                 <p class="text-muted">Sound siren if wristband clasp is unbuckled or cut</p>
               </div>
               <label class="toggle-switch">
-                <input type="checkbox" checked>
+                <input type="checkbox" id="tamperAlarm" checked>
                 <span class="slider"></span>
               </label>
             </div>
@@ -165,7 +172,7 @@
                 <p class="text-muted">Trigger warning if child exits safe zone radius</p>
               </div>
               <label class="toggle-switch">
-                <input type="checkbox" checked>
+                <input type="checkbox" id="geofenceAlert" checked>
                 <span class="slider"></span>
               </label>
             </div>
@@ -176,7 +183,7 @@
                 <p class="text-muted">Notify dashboard when battery drops below 15%</p>
               </div>
               <label class="toggle-switch">
-                <input type="checkbox" checked>
+                <input type="checkbox" id="batteryAlert" checked>
                 <span class="slider"></span>
               </label>
             </div>
@@ -187,7 +194,7 @@
                 <p class="text-muted">Flag warning if vitals deviate from normal levels</p>
               </div>
               <label class="toggle-switch">
-                <input type="checkbox" checked>
+                <input type="checkbox" id="vitalsAlert" checked>
                 <span class="slider"></span>
               </label>
             </div>
@@ -199,7 +206,7 @@
         <article class="card settings-card">
           <div class="card-header">
             <h3><span class="material-symbols-outlined header-icon">usb</span> Receiver Dongle & Storage</h3>
-            <span class="badge badge-success">Online</span>
+            <span class="badge badge-success" id="dongleStatusBadge">Online</span>
           </div>
 
           <div class="form-container">
@@ -220,7 +227,7 @@
             </div>
 
             <div class="db-action-row">
-              <button type="button" class="btn btn-secondary btn-sm">
+              <button type="button" class="btn btn-secondary btn-sm" id="testSerialBtn">
                 <span class="material-symbols-outlined">cable</span> Test Serial Connection
               </button>
             </div>
@@ -230,5 +237,10 @@
       </form>
     </main>
   </div>
+
+  <!-- Toast Container for User Feedback -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <script src="Setting.js"></script>
 </body>
 </html>
