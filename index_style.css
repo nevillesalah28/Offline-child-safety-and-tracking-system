@@ -334,7 +334,7 @@ body {
 .btn-secondary {
   background-color: var(--bg-card-hover);
   color: var(--text-main);
-}
+}  
 
 .btn-secondary:hover {
   background-color: #475569;
