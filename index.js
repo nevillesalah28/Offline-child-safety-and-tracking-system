@@ -26,9 +26,17 @@ document.addEventListener('DOMContentLoaded', () => {
         body.classList.toggle('sidebar-collapsed');
       }
 
-      // Recalculate map dimensions on layout shift
+      // Trigger Google Map resize on layout shift
       setTimeout(() => {
-        if (mapInstance) mapInstance.invalidateSize();
+        if (mapInstance && typeof google !== 'undefined') {
+          google.maps.event.trigger(mapInstance, 'resize');
+          if (window.telemetryState) {
+            mapInstance.setCenter({ 
+              lat: window.telemetryState.lat, 
+              lng: window.telemetryState.lng 
+            });
+          }
+        }
       }, 300);
     });
   }
@@ -134,66 +142,84 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Load online Leaflet map engine
-  loadLeafletCDNAndInit();
+  /* Initialize Google Maps Engine */
+  if (typeof google !== 'undefined') {
+    initGoogleMap();
+  } else {
+    window.addEventListener('load', initGoogleMap);
+  }
+
 });
 
 /* ------------------------------------------------------------------------
-   FUNCTIONALITY 4: ONLINE GPS MAP ENGINE (LEAFLET + CARTODB DARK)
+   FUNCTIONALITY 4: LIVE GPS MAP ENGINE (GOOGLE MAPS DARK THEME)
    ------------------------------------------------------------------------ */
 let mapInstance = null;
 let wristbandMarker = null;
 
-const YAOUNDE_CENTER = [3.8480, 11.5021];
+const YAOUNDE_CENTER = { lat: 3.8480, lng: 11.5021 };
 
-function loadLeafletCDNAndInit() {
-  if (!document.getElementById('leaflet-css')) {
-    const cssLink = document.createElement('link');
-    cssLink.id = 'leaflet-css';
-    cssLink.rel = 'stylesheet';
-    cssLink.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
-    document.head.appendChild(cssLink);
-  }
-
-  if (window.L) {
-    initMap();
-  } else {
-    const jsScript = document.createElement('script');
-    jsScript.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
-    jsScript.onload = () => initMap();
-    document.head.appendChild(jsScript);
-  }
-}
-
-function initMap() {
+function initGoogleMap() {
   const mapContainer = document.getElementById('map');
-  if (!mapContainer) return;
+  if (!mapContainer || typeof google === 'undefined') return;
 
   mapContainer.innerHTML = ''; 
 
-  mapInstance = L.map('map', { 
+  const initLat = window.telemetryState ? window.telemetryState.lat : YAOUNDE_CENTER.lat;
+  const initLng = window.telemetryState ? window.telemetryState.lng : YAOUNDE_CENTER.lng;
+  const initialPos = { lat: initLat, lng: initLng };
+
+  // 1. Initialize Google Map with Custom Dark Theme Styling
+  mapInstance = new google.maps.Map(mapContainer, { 
+    center: initialPos,
+    zoom: 15,
+    disableDefaultUI: false,
     zoomControl: true,
-    attributionControl: false 
-  }).setView(YAOUNDE_CENTER, 15);
+    styles: [
+      { elementType: "geometry", stylers: [{ color: "#1d283c" }] },
+      { elementType: "labels.text.stroke", stylers: [{ color: "#1d283c" }] },
+      { elementType: "labels.text.fill", stylers: [{ color: "#8ec3b9" }] },
+      { featureType: "administrative.locality", elementType: "labels.text.fill", stylers: [{ color: "#d59563" }] },
+      { featureType: "poi", elementType: "labels.text.fill", stylers: [{ color: "#d59563" }] },
+      { featureType: "poi.park", elementType: "geometry", stylers: [{ color: "#182333" }] },
+      { featureType: "road", elementType: "geometry", stylers: [{ color: "#2c3b52" }] },
+      { featureType: "road", elementType: "geometry.stroke", stylers: [{ color: "#1f293d" }] },
+      { featureType: "road", elementType: "labels.text.fill", stylers: [{ color: "#9ca5b3" }] },
+      { featureType: "water", elementType: "geometry", stylers: [{ color: "#0e1626" }] },
+      { featureType: "water", elementType: "labels.text.fill", stylers: [{ color: "#515c6d" }] }
+    ]
+  });
 
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-    maxZoom: 19,
-    subdomains: 'abcd'
-  }).addTo(mapInstance);
+  // 2. Place Live Wristband Pin Marker
+  wristbandMarker = new google.maps.Marker({
+    position: initialPos,
+    map: mapInstance,
+    title: "Capsule Wristband"
+  });
 
-  const initLat = window.telemetryState ? window.telemetryState.lat : YAOUNDE_CENTER[0];
-  const initLng = window.telemetryState ? window.telemetryState.lng : YAOUNDE_CENTER[1];
+  // 3. Info Popup Window
+  const infoWindow = new google.maps.InfoWindow({
+    content: `
+      <div style="color: #0f172a; font-family: sans-serif; font-size: 0.9rem;">
+        <strong>Capsule Wristband</strong><br/>
+        <span>Yaoundé Live Tracker</span>
+      </div>
+    `
+  });
 
-  wristbandMarker = L.marker([initLat, initLng]).addTo(mapInstance);
-  wristbandMarker.bindPopup('<b>Capsule Wristband</b><br>Yaoundé Tracker').openPopup();
+  wristbandMarker.addListener('click', () => {
+    infoWindow.open(mapInstance, wristbandMarker);
+  });
 
-  console.log('🗺️ [Online Map Engine]: Online Leaflet map initialized for Yaoundé.');
+  console.log('🗺️ [Google Maps Engine]: Live Dashboard map initialized successfully.');
 }
 
 function updateMapLocation() {
   if (mapInstance && wristbandMarker && window.telemetryState) {
-    const newPos = [window.telemetryState.lat, window.telemetryState.lng];
-    wristbandMarker.setLatLng(newPos);
-    mapInstance.panTo(newPos, { animate: true });
+    const newPos = { lat: window.telemetryState.lat, lng: window.telemetryState.lng };
+    
+    // Smoothly pan map and relocate the pin marker when telemetry arrives
+    wristbandMarker.setPosition(newPos);
+    mapInstance.panTo(newPos);
   }
 }

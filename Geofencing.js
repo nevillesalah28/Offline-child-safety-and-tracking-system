@@ -1,18 +1,29 @@
-// ==========================================================================
-// CAPSULE TRACKER - GEOFENCING CONTROLLER
-// ==========================================================================
+// Geofencing.js
 
 document.addEventListener('DOMContentLoaded', () => {
 
-  /* ------------------------------------------------------------------------
-     1. SIDEBAR & RESPONSIVE DRAWER CONTROLLER
-     ------------------------------------------------------------------------ */
+  // =========================================================================
+  // FUNCTIONALITY 1: REAL-TIME RADIUS SLIDER DISPLAY
+  // =========================================================================
+  const zoneRadiusInput = document.getElementById('zoneRadius');
+  const radiusValueDisplay = document.getElementById('radiusValue');
+
+  if (zoneRadiusInput && radiusValueDisplay) {
+    zoneRadiusInput.addEventListener('input', (event) => {
+      radiusValueDisplay.textContent = event.target.value;
+    });
+  }
+
+
+  // =========================================================================
+  // FUNCTIONALITY 2: SIDEBAR TOGGLE & OFF-CANVAS RESPONSIVE DRAWER
+  // =========================================================================
   const sidebarToggleBtn = document.getElementById('sidebarToggle');
   const body = document.body;
 
   const overlay = document.createElement('div');
   overlay.className = 'sidebar-overlay';
-  document.body.appendChild(overlay);
+  body.appendChild(overlay);
 
   if (sidebarToggleBtn) {
     sidebarToggleBtn.addEventListener('click', () => {
@@ -30,237 +41,236 @@ document.addEventListener('DOMContentLoaded', () => {
     overlay.classList.remove('active');
   });
 
-  /* ------------------------------------------------------------------------
-     2. LEAFLET MAP & GEOFENCE ZONE INITIALIZATION
-     ------------------------------------------------------------------------ */
-  // Default coordinates (e.g., Yaoundé central focus)
-  const defaultCoords = [3.8480, 11.5021];
-  const mapElement = document.getElementById('geofenceMap') || document.getElementById('map');
 
-  let map, selectedMarker, previewCircle;
-  let activeZones = [
-    { id: 1, name: "Home Safe Zone", lat: 3.8480, lng: 11.5021, radius: 250, color: '#38bdf8', active: true },
-    { id: 2, name: "Pinnacle Academy", lat: 3.8540, lng: 11.5120, radius: 400, color: '#22c55e', active: true }
+  // =========================================================================
+  // FUNCTIONALITY 3: BOUNDARIES DATA & DYNAMIC UI RENDERING
+  // =========================================================================
+  let geofenceZones = [
+    {
+      id: 1,
+      name: 'Home Perimeter',
+      type: 'safe',
+      radius: 200,
+      isActive: true
+    },
+    {
+      id: 2,
+      name: 'Busy Road Highway',
+      type: 'danger',
+      radius: 350,
+      isActive: true
+    }
   ];
-  let mapCircles = {};
 
-  if (mapElement && typeof L !== 'undefined') {
-    map = L.map(mapElement.id, { zoomControl: false }).setView(defaultCoords, 14);
+  const activeZonesList = document.getElementById('activeZonesList');
+  const activeZoneCount = document.getElementById('activeZoneCount');
 
-    // Dark theme OpenStreetMap tiles
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-      maxZoom: 19,
-      attribution: '&copy; <a href="https://carto.com/">CARTO</a>'
-    }).addTo(map);
+  function renderGeofenceList() {
+    if (!activeZonesList) return;
 
-    L.control.zoom({ position: 'bottomright' }).addTo(map);
+    activeZonesList.innerHTML = '';
 
-    // Render initial zones
-    renderMapZones();
+    if (geofenceZones.length === 0) {
+      activeZonesList.innerHTML = `
+        <p class="text-muted" style="text-align: center; padding: 16px;">
+          No boundaries configured yet. Use the form above to add one.
+        </p>
+      `;
+      if (activeZoneCount) activeZoneCount.textContent = '0 Active';
+      return;
+    }
 
-    // Map click handler to set new zone center
-    map.on('click', (e) => {
-      const { lat, lng } = e.latlng;
-      setNewZoneCenter(lat, lng);
+    geofenceZones.forEach((zone) => {
+      const isSafe = zone.type === 'safe';
+      const zoneClass = isSafe ? 'safe-zone' : 'danger-zone';
+      const zoneIcon = isSafe ? 'verified_user' : 'warning';
+      const typeLabel = isSafe ? 'Safe Zone' : 'Danger Zone';
+
+      const zoneCardHtml = `
+        <div class="zone-item ${zoneClass}" data-id="${zone.id}">
+          <div class="zone-icon">
+            <span class="material-symbols-outlined">${zoneIcon}</span>
+          </div>
+
+          <div class="zone-details">
+            <h4>${zone.name}</h4>
+            <span class="zone-meta">${typeLabel} • ${zone.radius}m radius</span>
+          </div>
+
+          <div class="zone-actions">
+            <label class="toggle-switch" title="Enable/Disable Zone">
+              <input 
+                type="checkbox" 
+                class="zone-toggle" 
+                data-id="${zone.id}" 
+                ${zone.isActive ? 'checked' : ''}
+              >
+              <span class="slider"></span>
+            </label>
+
+            <button 
+              class="btn-icon danger btn-delete-zone" 
+              data-id="${zone.id}" 
+              title="Delete Boundary"
+            >
+              <span class="material-symbols-outlined">delete</span>
+            </button>
+          </div>
+        </div>
+      `;
+
+      activeZonesList.insertAdjacentHTML('beforeend', zoneCardHtml);
     });
+
+    updateActiveCount();
   }
 
-  /* ------------------------------------------------------------------------
-     3. ZONE RENDERING & MAP LAYER MANAGEMENT
-     ------------------------------------------------------------------------ */
-  function renderMapZones() {
-    if (!map) return;
-
-    // Clear existing rendered circles
-    Object.values(mapCircles).forEach(circle => map.removeLayer(circle));
-    mapCircles = {};
-
-    activeZones.forEach(zone => {
-      if (!zone.active) return;
-
-      const circle = L.circle([zone.lat, zone.lng], {
-        color: zone.color,
-        fillColor: zone.color,
-        fillOpacity: 0.2,
-        radius: zone.radius,
-        weight: 2
-      }).addTo(map);
-
-      circle.bindPopup(`<b>${zone.name}</b><br>Radius: ${zone.radius}m`);
-      mapCircles[zone.id] = circle;
-    });
+  function updateActiveCount() {
+    const activeCount = geofenceZones.filter(z => z.isActive).length;
+    if (activeZoneCount) {
+      activeZoneCount.textContent = `${activeCount} Active`;
+    }
   }
 
-  function setNewZoneCenter(lat, lng) {
-    const latInput = document.getElementById('zone-lat');
-    const lngInput = document.getElementById('zone-lng');
+  renderGeofenceList();
 
-    if (latInput) latInput.value = lat.toFixed(6);
-    if (lngInput) lngInput.value = lng.toFixed(6);
 
-    if (selectedMarker) map.removeLayer(selectedMarker);
-    if (previewCircle) map.removeLayer(previewCircle);
+  // =========================================================================
+  // FUNCTIONALITY 4: ADD NEW BOUNDARY VIA FORM SUBMISSION
+  // =========================================================================
+  const geofenceForm = document.getElementById('geofenceForm');
+  const zoneNameInput = document.getElementById('zoneName');
+  const zoneTypeSelect = document.getElementById('zoneType');
 
-    selectedMarker = L.marker([lat, lng]).addTo(map);
-
-    const radiusInput = document.getElementById('zone-radius');
-    const currentRadius = radiusInput ? parseInt(radiusInput.value, 10) : 200;
-
-    previewCircle = L.circle([lat, lng], {
-      color: '#f59e0b',
-      fillColor: '#f59e0b',
-      fillOpacity: 0.15,
-      radius: currentRadius,
-      dashArray: '6, 6',
-      weight: 2
-    }).addTo(map);
-
-    showToast(`Center coordinates updated: ${lat.toFixed(4)}, ${lng.toFixed(4)}`, 'info');
-  }
-
-  /* ------------------------------------------------------------------------
-     4. FORM CONTROLS & DYNAMIC RADIUS SLIDER
-     ------------------------------------------------------------------------ */
-  const radiusSlider = document.getElementById('zone-radius');
-  const radiusValDisplay = document.getElementById('radius-val');
-
-  if (radiusSlider && radiusValDisplay) {
-    radiusSlider.addEventListener('input', (e) => {
-      const rad = e.target.value;
-      radiusValDisplay.textContent = `${rad} m`;
-
-      if (previewCircle) {
-        previewCircle.setRadius(parseInt(rad, 10));
-      }
-    });
-  }
-
-  // Create Zone Form Submit
-  const geofenceForm = document.getElementById('geofence-form');
   if (geofenceForm) {
-    geofenceForm.addEventListener('submit', (e) => {
-      e.preventDefault();
+    geofenceForm.addEventListener('submit', (event) => {
+      event.preventDefault();
 
-      const nameInput = document.getElementById('zone-name');
-      const latInput = document.getElementById('zone-lat');
-      const lngInput = document.getElementById('zone-lng');
-      const radiusInput = document.getElementById('zone-radius');
+      const name = zoneNameInput.value.trim();
+      const type = zoneTypeSelect.value;
+      const radius = parseInt(zoneRadiusInput.value, 10);
 
-      if (!nameInput || !nameInput.value.trim()) {
-        showToast('Please enter a valid Zone Name.', 'error');
-        return;
-      }
+      if (!name) return;
 
       const newZone = {
         id: Date.now(),
-        name: nameInput.value.trim(),
-        lat: parseFloat(latInput.value) || defaultCoords[0],
-        lng: parseFloat(lngInput.value) || defaultCoords[1],
-        radius: parseInt(radiusInput.value, 10) || 200,
-        color: '#38bdf8',
-        active: true
+        name: name,
+        type: type,
+        radius: radius,
+        isActive: true
       };
 
-      activeZones.push(newZone);
-      renderMapZones();
-      appendZoneToList(newZone);
+      geofenceZones.push(newZone);
+      renderGeofenceList();
 
-      // Clean preview markers
-      if (selectedMarker) map.removeLayer(selectedMarker);
-      if (previewCircle) map.removeLayer(previewCircle);
-
-      nameInput.value = '';
-      showToast(`Geofence "${newZone.name}" created and armed!`, 'success');
+      geofenceForm.reset();
+      if (radiusValueDisplay) {
+        radiusValueDisplay.textContent = '200';
+      }
     });
   }
 
-  /* ------------------------------------------------------------------------
-     5. DYNAMIC ZONE LIST & INTERACTIVE DELEGATION
-     ------------------------------------------------------------------------ */
-  function appendZoneToList(zone) {
-    const zoneListContainer = document.getElementById('zoneList');
-    if (!zoneListContainer) return;
 
-    const card = document.createElement('div');
-    card.className = 'zone-item-card';
-    card.dataset.id = zone.id;
-    card.innerHTML = `
-      <div class="zone-info">
-        <h4>${zone.name}</h4>
-        <p class="text-muted">Radius: ${zone.radius}m | Coords: ${zone.lat.toFixed(4)}, ${zone.lng.toFixed(4)}</p>
-      </div>
-      <div class="zone-actions">
-        <label class="toggle-switch">
-          <input type="checkbox" class="zone-toggle" ${zone.active ? 'checked' : ''}>
-          <span class="slider"></span>
-        </label>
-        <button type="button" class="btn-icon delete-zone-btn" title="Delete Zone">
-          <span class="material-symbols-outlined">delete</span>
-        </button>
-      </div>
-    `;
+  // =========================================================================
+  // FUNCTIONALITY 5: TOGGLING ACTIVE STATES & DELETING BOUNDARIES
+  // =========================================================================
+  if (activeZonesList) {
 
-    zoneListContainer.appendChild(card);
-  }
-
-  // Event delegation for zone toggle and deletion
-  document.addEventListener('click', (e) => {
-    // Delete action
-    const deleteBtn = e.target.closest('.delete-zone-btn');
-    if (deleteBtn) {
-      const card = deleteBtn.closest('.zone-item-card');
-      const id = parseInt(card.dataset.id, 10);
-
-      activeZones = activeZones.filter(z => z.id !== id);
-      renderMapZones();
-      card.remove();
-      showToast('Geofence zone deleted.', 'info');
-    }
-  });
-
-  document.addEventListener('change', (e) => {
-    // Active state toggle action
-    if (e.target.classList.contains('zone-toggle')) {
-      const card = e.target.closest('.zone-item-card');
-      const id = parseInt(card.dataset.id, 10);
-      const zone = activeZones.find(z => z.id === id);
-
-      if (zone) {
-        zone.active = e.target.checked;
-        renderMapZones();
-        showToast(`Geofence "${zone.name}" ${zone.active ? 'enabled' : 'disabled'}.`, 'info');
+    activeZonesList.addEventListener('click', (event) => {
+      const deleteBtn = event.target.closest('.btn-delete-zone');
+      
+      if (deleteBtn) {
+        const zoneId = Number(deleteBtn.dataset.id);
+        geofenceZones = geofenceZones.filter(zone => zone.id !== zoneId);
+        renderGeofenceList();
       }
-    }
-  });
+    });
 
-  /* ------------------------------------------------------------------------
-     6. TOAST UTILITY
-     ------------------------------------------------------------------------ */
-  function showToast(message, type = 'info') {
-    let container = document.getElementById('toastContainer');
-    if (!container) {
-      container = document.createElement('div');
-      container.id = 'toastContainer';
-      container.className = 'toast-container';
-      document.body.appendChild(container);
-    }
+    activeZonesList.addEventListener('change', (event) => {
+      if (event.target.classList.contains('zone-toggle')) {
+        const zoneId = Number(event.target.dataset.id);
+        const targetZone = geofenceZones.find(zone => zone.id === zoneId);
+        if (targetZone) {
+          targetZone.isActive = event.target.checked;
+          updateActiveCount();
+        }
+      }
+    });
 
-    const toast = document.createElement('div');
-    toast.className = `toast ${type}`;
-    const icon = type === 'success' ? 'check_circle' : (type === 'error' ? 'error' : 'info');
-
-    toast.innerHTML = `
-      <span class="material-symbols-outlined">${icon}</span>
-      <span>${message}</span>
-    `;
-
-    container.appendChild(toast);
-
-    setTimeout(() => {
-      toast.style.opacity = '0';
-      toast.style.transform = 'translateX(100%)';
-      toast.style.transition = 'all 0.3s ease-out';
-      setTimeout(() => toast.remove(), 300);
-    }, 3500);
   }
+
+
+// =========================================================================
+  // FUNCTIONALITY 6: LIVE GOOGLE MAP INTEGRATION & DYNAMIC RADIUS CIRCLE
+  // =========================================================================
+  const mapElement = document.getElementById('geofenceMap');
+
+  if (mapElement && typeof google !== 'undefined') {
+    // 1. Clear placeholder HTML text
+    mapElement.innerHTML = '';
+
+    // Default map coordinates (Yaoundé center)
+    const defaultPos = { lat: 3.8480, lng: 11.5021 };
+
+    // 2. Initialize Google Map with Dark Theme Styling
+    const map = new google.maps.Map(mapElement, {
+      center: defaultPos,
+      zoom: 14,
+      disableDefaultUI: false,
+      zoomControl: true,
+      // Custom Dark Theme styles matching your interface
+      styles: [
+        { elementType: "geometry", stylers: [{ color: "#1d283c" }] },
+        { elementType: "labels.text.stroke", stylers: [{ color: "#1d283c" }] },
+        { elementType: "labels.text.fill", stylers: [{ color: "#8ec3b9" }] },
+        { featureType: "administrative.locality", elementType: "labels.text.fill", stylers: [{ color: "#d59563" }] },
+        { featureType: "poi", elementType: "labels.text.fill", stylers: [{ color: "#d59563" }] },
+        { featureType: "poi.park", elementType: "geometry", stylers: [{ color: "#182333" }] },
+        { featureType: "road", elementType: "geometry", stylers: [{ color: "#2c3b52" }] },
+        { featureType: "road", elementType: "geometry.stroke", stylers: [{ color: "#1f293d" }] },
+        { featureType: "road", elementType: "labels.text.fill", stylers: [{ color: "#9ca5b3" }] },
+        { featureType: "water", elementType: "geometry", stylers: [{ color: "#0e1626" }] },
+        { featureType: "water", elementType: "labels.text.fill", stylers: [{ color: "#515c6d" }] }
+      ]
+    });
+
+    // 3. Create initial Center Pin Marker
+    const marker = new google.maps.Marker({
+      position: defaultPos,
+      map: map,
+      title: "Selected Zone Center"
+    });
+
+    // 4. Create Geofence Perimeter Visual Circle
+    let currentRadius = parseInt(zoneRadiusInput ? zoneRadiusInput.value : 200, 10);
+
+    const fenceCircle = new google.maps.Circle({
+      strokeColor: "#10b981",    // Green boundary line
+      strokeOpacity: 0.8,
+      strokeWeight: 2,
+      fillColor: "#10b981",      // Semi-transparent green fill
+      fillOpacity: 0.2,
+      map: map,
+      center: defaultPos,
+      radius: currentRadius      // In meters
+    });
+
+    // 5. Connect Radius Slider to Google Maps Circle
+    if (zoneRadiusInput) {
+      zoneRadiusInput.addEventListener('input', (e) => {
+        const newRadius = parseInt(e.target.value, 10);
+        fenceCircle.setRadius(newRadius);
+      });
+    }
+
+    // 6. Handle Clicks on Map to Reposition Pin & Boundary Circle
+    map.addListener('click', (event) => {
+      const clickedPos = event.latLng;
+
+      // Move marker and fence circle center
+      marker.setPosition(clickedPos);
+      fenceCircle.setCenter(clickedPos);
+    });
+  }
+
 });
