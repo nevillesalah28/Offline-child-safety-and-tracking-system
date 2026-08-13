@@ -1,5 +1,5 @@
 // ==========================================================================
-// CAPSULE TRACKER - LIVE DASHBOARD & MAP LOGIC
+// CAPSULE TRACKER - LIVE DASHBOARD & MAP LOGIC (ESP32 + SIM800L + GT-U7)
 // ==========================================================================
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -17,12 +17,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (sidebarToggleBtn) {
     sidebarToggleBtn.addEventListener('click', () => {
-      // Small screen view toggle (< 992px)
       if (window.innerWidth <= 992) {
         body.classList.toggle('sidebar-open');
         overlay.classList.toggle('active');
       } else {
-        // Desktop collapse view toggle
         body.classList.toggle('sidebar-collapsed');
       }
 
@@ -54,11 +52,15 @@ document.addEventListener('DOMContentLoaded', () => {
   const spo2Element = document.getElementById('spo2Value');
   const bandBatElement = document.getElementById('bandBatValue');
   const gpsCoordsElement = document.getElementById('gpsCoords');
+  const csqElement = document.getElementById('csqVal');
+  const satElement = document.getElementById('satVal');
 
   window.telemetryState = {
     heartRate: 78,
     spo2: 98,
     battery: 92,
+    csq: 24,
+    satellites: 8,
     lat: 3.8480,
     lng: 11.5021,
     lastUpdated: new Date()
@@ -68,6 +70,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (hrElement) hrElement.textContent = telemetryState.heartRate;
     if (spo2Element) spo2Element.textContent = telemetryState.spo2;
     if (bandBatElement) bandBatElement.textContent = telemetryState.battery;
+    if (csqElement) csqElement.textContent = `CSQ ${telemetryState.csq}`;
+    if (satElement) satElement.textContent = `${telemetryState.satellites} Sats`;
     
     if (gpsCoordsElement) {
       const latFormatted = telemetryState.lat.toFixed(4);
@@ -76,9 +80,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  function simulateIncomingLoRaPacket() {
+  function simulateIncomingCellularPacket() {
     telemetryState.heartRate = Math.floor(72 + Math.random() * 12);
     telemetryState.spo2 = Math.floor(96 + Math.random() * 4);
+    telemetryState.csq = Math.floor(20 + Math.random() * 8);
+    telemetryState.satellites = Math.floor(7 + Math.random() * 4);
     telemetryState.lat += (Math.random() - 0.5) * 0.0001;
     telemetryState.lng += (Math.random() - 0.5) * 0.0001;
     telemetryState.lastUpdated = new Date();
@@ -88,7 +94,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   renderVitals();
-  setInterval(simulateIncomingLoRaPacket, 3000);
+  setInterval(simulateIncomingCellularPacket, 3000);
 
   /* ------------------------------------------------------------------------
      FUNCTIONALITY 3: EMERGENCY & DEVICE QUICK CONTROLS
@@ -103,9 +109,9 @@ document.addEventListener('DOMContentLoaded', () => {
     pingBtn.addEventListener('click', () => {
       const originalHTML = pingBtn.innerHTML;
       pingBtn.disabled = true;
-      pingBtn.innerHTML = `<span class="material-symbols-outlined">radar</span> Pinging...`;
+      pingBtn.innerHTML = `<span class="material-symbols-outlined">radar</span> Pinging ESP32...`;
 
-      console.log('📡 [LoRa Tx]: Transmitting ping command to device...');
+      console.log('📡 [SIM800L Cellular Tx]: Dispatching location request command via GPRS...');
 
       setTimeout(() => {
         pingBtn.disabled = false;
@@ -127,7 +133,7 @@ document.addEventListener('DOMContentLoaded', () => {
           tamperBadge.innerHTML = `<span class="material-symbols-outlined">warning</span> Wristband: <strong>SIREN ACTIVE</strong>`;
         }
 
-        console.warn('🚨 [EMERGENCY COMMAND]: Broadcasted Siren Activation payload via LoRa!');
+        console.warn('🚨 [CELLULAR COMMAND]: Sent siren activation packet via HTTP/GPRS!');
       } else {
         sirenBtn.innerHTML = `<span class="material-symbols-outlined">campaign</span> Sound Alarm`;
 
@@ -137,7 +143,7 @@ document.addEventListener('DOMContentLoaded', () => {
           tamperBadge.innerHTML = `<span class="material-symbols-outlined">lock</span> Wristband: <strong>Secured</strong>`;
         }
 
-        console.log('✅ [Command Sent]: Alarm silenced, returning to normal state.');
+        console.log('✅ [Command Sent]: Alarm silenced, returning to normal monitoring.');
       }
     });
   }
@@ -194,15 +200,15 @@ function initGoogleMap() {
   wristbandMarker = new google.maps.Marker({
     position: initialPos,
     map: mapInstance,
-    title: "Capsule Wristband"
+    title: "ESP32 Capsule Wristband"
   });
 
   // 3. Info Popup Window
   const infoWindow = new google.maps.InfoWindow({
     content: `
       <div style="color: #0f172a; font-family: sans-serif; font-size: 0.9rem;">
-        <strong>Capsule Wristband</strong><br/>
-        <span>Yaoundé Live Tracker</span>
+        <strong>ESP32 Wristband (GT-U7 GPS)</strong><br/>
+        <span>Yaoundé Live Cellular Tracker</span>
       </div>
     `
   });

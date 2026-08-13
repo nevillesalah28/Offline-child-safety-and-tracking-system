@@ -1,354 +1,236 @@
-// Wait for the web page to load completely
-document.addEventListener("DOMContentLoaded", () => {
-  // ------------------------------------------------------------------
-  // 1. SELECT HTML ELEMENTS
-  // ------------------------------------------------------------------
-  const settingsForm = document.getElementById("settings-form");
-  const nameInput = document.getElementById("admin-name");
-  const emailInput = document.getElementById("admin-email");
-  const passwordInput = document.getElementById("admin-password");
-  const loraFreqSelect = document.getElementById("lora-freq");
-  const gpsPingSelect = document.getElementById("gps-ping");
-  const sosDelayInput = document.getElementById("sos-delay");
-  const sosValText = document.getElementById("sos-val");
-  const comPortInput = document.getElementById("com-port");
-  const baudRateInput = document.getElementById("baud-rate");
-  const dbNameInput = document.getElementById("db-name");
-  const avatarPlaceholder = document.querySelector(".avatar-placeholder");
-  
-  const resetButton = document.querySelector(".top-header .btn-secondary");
-  const testSerialButton = document.querySelector(".db-action-row .btn");
+// ==========================================================================
+// CAPSULE TRACKER - DEVICE SETTINGS CONTROLLER
+// ==========================================================================
 
-  // Track unsaved form changes
-  let isFormDirty = false;
+document.addEventListener('DOMContentLoaded', () => {
 
-  // ------------------------------------------------------------------
-  // 2. HELPER FUNCTIONS & VALIDATION
-  // ------------------------------------------------------------------
+  /* ------------------------------------------------------------------------
+     FUNCTIONALITY 1: SIDEBAR TOGGLE & OFF-CANVAS RESPONSIVE DRAWER
+     ------------------------------------------------------------------------ */
+  const sidebarToggleBtn = document.getElementById('sidebarToggle');
+  const body = document.body;
 
-  // Log system events with a timestamp
-  function addSystemLog(message) {
-    const timestamp = new Date().toLocaleTimeString();
-    console.log(`[Capsule Log - ${timestamp}]: ${message}`);
+  let overlay = document.querySelector('.sidebar-overlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.className = 'sidebar-overlay';
+    document.body.appendChild(overlay);
   }
 
-  // Update Avatar Initials
-  function updateAvatarInitials(name) {
-    if (!avatarPlaceholder || !name.trim()) return;
-    const nameParts = name.trim().split(" ");
-    let initials = nameParts[0].charAt(0).toUpperCase();
-    
-    if (nameParts.length > 1) {
-      initials += nameParts[nameParts.length - 1].charAt(0).toUpperCase();
-    }
-    
-    avatarPlaceholder.textContent = initials;
-  }
-
-  // Email Validation Check
-  function validateForm() {
-    const emailValue = emailInput ? emailInput.value.trim() : "";
-    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-    if (emailValue && !emailPattern.test(emailValue)) {
-      alert("⚠️ Please enter a valid admin email address!");
-      emailInput.style.borderColor = "#ef4444";
-      return false;
-    }
-    if (emailInput) emailInput.style.borderColor = "";
-    return true;
-  }
-
-  // Save settings to LocalStorage
-  function saveSettings() {
-    if (!validateForm()) return;
-
-    const settingsData = {
-      name: nameInput ? nameInput.value : "",
-      email: emailInput ? emailInput.value : "",
-      password: passwordInput ? passwordInput.value : "",
-      loraFreq: loraFreqSelect ? loraFreqSelect.value : "915",
-      gpsPing: gpsPingSelect ? gpsPingSelect.value : "5",
-      sosDelay: sosDelayInput ? sosDelayInput.value : "3",
-      comPort: comPortInput ? comPortInput.value : "COM3",
-      baudRate: baudRateInput ? baudRateInput.value : "115200",
-      dbName: dbNameInput ? dbNameInput.value : "capsule_telemetry.db",
-      lastSaved: new Date().toISOString()
-    };
-
-    localStorage.setItem("capsuleSettings", JSON.stringify(settingsData));
-    isFormDirty = false; // Reset dirty state after saving
-    updateTelemetryPreview();
-    addSystemLog("Settings saved successfully.");
-    alert("✅ Settings saved successfully!");
-  }
-
-  // Load settings from LocalStorage
-  function loadSettings() {
-    const savedData = localStorage.getItem("capsuleSettings");
-    if (!savedData) return;
-
-    const settings = JSON.parse(savedData);
-
-    if (nameInput) nameInput.value = settings.name || "Neville";
-    if (emailInput) emailInput.value = settings.email || "";
-    if (passwordInput) passwordInput.value = settings.password || "";
-    if (loraFreqSelect) loraFreqSelect.value = settings.loraFreq || "915";
-    if (gpsPingSelect) gpsPingSelect.value = settings.gpsPing || "5";
-    if (sosDelayInput) sosDelayInput.value = settings.sosDelay || "3";
-    if (comPortInput) comPortInput.value = settings.comPort || "COM3 (LoRa Receiver)";
-    if (baudRateInput) baudRateInput.value = settings.baudRate || "115200";
-    if (dbNameInput) dbNameInput.value = settings.dbName || "capsule_telemetry.db";
-
-    if (sosValText && sosDelayInput) {
-      sosValText.innerText = sosDelayInput.value + " Seconds";
-    }
-    
-    if (nameInput) updateAvatarInitials(nameInput.value);
-    updateTelemetryPreview();
-    isFormDirty = false;
-    addSystemLog("Loaded saved device parameters.");
-  }
-
-  // ------------------------------------------------------------------
-  // 3. NEW ADVANCED CAPABILITIES
-  // ------------------------------------------------------------------
-
-  // NEW 1: Live Hardware Telemetry Packet Generator Preview
-  function setupTelemetryPreview() {
-    if (!settingsForm) return;
-
-    const previewContainer = document.createElement("div");
-    previewContainer.id = "telemetry-preview-box";
-    previewContainer.style.cssText = `
-      margin-top: 20px;
-      padding: 12px 16px;
-      background-color: #0f172a;
-      color: #38bdf8;
-      border: 1px solid #334155;
-      border-radius: 8px;
-      font-family: monospace;
-      font-size: 0.85rem;
-    `;
-    previewContainer.innerHTML = `<strong>📡 Outbound Telemetry Packet Preview:</strong><br><code id="packet-code">Generating...</code>`;
-    
-    settingsForm.appendChild(previewContainer);
-  }
-
-  function updateTelemetryPreview() {
-    const packetCode = document.getElementById("packet-code");
-    if (!packetCode) return;
-
-    const freq = loraFreqSelect ? loraFreqSelect.value : "915";
-    const interval = gpsPingSelect ? gpsPingSelect.value : "5";
-    const sos = sosDelayInput ? sosDelayInput.value : "3";
-    
-    // Simulates raw JSON payload sent to the hardware tracker
-    const mockPacket = `{ "CMD": "CFG_SET", "FREQ_MHZ": ${freq}, "GPS_INT_SEC": ${interval}, "SOS_HOLD_SEC": ${sos} }`;
-    packetCode.textContent = mockPacket;
-  }
-
-  // NEW 2: Network Connectivity Status Indicator
-  function setupNetworkMonitor() {
-    const statusBanner = document.createElement("div");
-    statusBanner.id = "net-status-banner";
-    statusBanner.style.cssText = `
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      padding: 4px;
-      text-align: center;
-      font-size: 0.8rem;
-      font-weight: bold;
-      z-index: 9999;
-      display: none;
-    `;
-    document.body.appendChild(statusBanner);
-
-    function updateOnlineStatus() {
-      if (navigator.onLine) {
-        statusBanner.style.backgroundColor = "#22c55e";
-        statusBanner.style.color = "#000";
-        statusBanner.textContent = "🟢 Workstation Online - Sync Active";
-        setTimeout(() => { statusBanner.style.display = "none"; }, 3000);
+  if (sidebarToggleBtn) {
+    sidebarToggleBtn.addEventListener('click', () => {
+      if (window.innerWidth <= 992) {
+        body.classList.toggle('sidebar-open');
+        overlay.classList.toggle('active');
       } else {
-        statusBanner.style.display = "block";
-        statusBanner.style.backgroundColor = "#ef4444";
-        statusBanner.style.color = "#fff";
-        statusBanner.textContent = "🔴 Workstation Offline - Operating in Local Cache Mode";
-      }
-    }
-
-    window.addEventListener("online", updateOnlineStatus);
-    window.addEventListener("offline", updateOnlineStatus);
-    if (!navigator.onLine) updateOnlineStatus();
-  }
-
-  // NEW 3: Dynamic COM Port Refresh Scanner
-  function setupComPortScanner() {
-    if (!comPortInput) return;
-
-    const scanBtn = document.createElement("button");
-    scanBtn.type = "button";
-    scanBtn.textContent = "🔄 Refresh Ports";
-    scanBtn.style.cssText = "margin-top: 6px; padding: 4px 10px; font-size: 0.8rem; cursor: pointer;";
-
-    scanBtn.addEventListener("click", () => {
-      scanBtn.textContent = "⏳ Scanning...";
-      setTimeout(() => {
-        scanBtn.textContent = "🔄 Refresh Ports";
-        alert("🔍 Port Scan Complete:\n• COM1 (System Bus)\n• COM3 (LoRa Receiver - Active)\n• COM7 (USB Serial Device)");
-        addSystemLog("Scanned local hardware serial ports.");
-      }, 800);
-    });
-
-    comPortInput.parentElement.appendChild(scanBtn);
-  }
-
-  // NEW 4: Import Settings from JSON File
-  function setupConfigImport() {
-    const importBtn = document.createElement("button");
-    importBtn.type = "button";
-    importBtn.textContent = "📁 Import Backup (.json)";
-    importBtn.style.cssText = "margin-left: 10px; padding: 6px 12px; font-size: 0.85rem; cursor: pointer;";
-
-    const fileInput = document.createElement("input");
-    fileInput.type = "file";
-    fileInput.accept = ".json";
-    fileInput.style.display = "none";
-
-    importBtn.addEventListener("click", () => fileInput.click());
-
-    fileInput.addEventListener("change", (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
-
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        try {
-          const importedData = JSON.parse(event.target.result);
-          localStorage.setItem("capsuleSettings", JSON.stringify(importedData));
-          loadSettings();
-          alert("🎉 Configuration imported successfully!");
-          addSystemLog("Restored settings from external JSON file.");
-        } catch (err) {
-          alert("❌ Invalid JSON file format!");
-        }
-      };
-      reader.readAsText(file);
-    });
-
-    if (resetButton && resetButton.parentElement) {
-      resetButton.parentElement.appendChild(importBtn);
-      resetButton.parentElement.appendChild(fileInput);
-    }
-  }
-
-  // NEW 5: Password Visibility Toggle
-  function setupPasswordVisibilityToggle() {
-    if (!passwordInput) return;
-
-    const toggleBtn = document.createElement("button");
-    toggleBtn.type = "button";
-    toggleBtn.textContent = "👁️ Show";
-    toggleBtn.style.cssText = "margin-top: 5px; font-size: 0.8rem; cursor: pointer; padding: 2px 8px;";
-
-    toggleBtn.addEventListener("click", () => {
-      const isPassword = passwordInput.type === "password";
-      passwordInput.type = isPassword ? "text" : "password";
-      toggleBtn.textContent = isPassword ? "🙈 Hide" : "👁️ Show";
-    });
-
-    passwordInput.parentElement.appendChild(toggleBtn);
-  }
-
-  // NEW 6: Unsaved Changes Browser Protection
-  function setupUnsavedChangesWarning() {
-    if (!settingsForm) return;
-
-    settingsForm.addEventListener("input", () => {
-      isFormDirty = true;
-      updateTelemetryPreview();
-    });
-
-    window.addEventListener("beforeunload", (event) => {
-      if (isFormDirty) {
-        event.preventDefault();
-        event.returnValue = "You have unsaved settings!";
+        body.classList.toggle('sidebar-collapsed');
       }
     });
   }
 
-  // ------------------------------------------------------------------
-  // 4. EVENT LISTENERS
-  // ------------------------------------------------------------------
-
-  // SOS Slider Display
-  if (sosDelayInput && sosValText) {
-    sosDelayInput.addEventListener("input", () => {
-      sosValText.innerText = sosDelayInput.value + " Seconds";
-    });
-  }
-
-  // Dynamic Avatar Initials
-  if (nameInput) {
-    nameInput.addEventListener("input", () => {
-      updateAvatarInitials(nameInput.value);
-    });
-  }
-
-  // Form Submit
-  if (settingsForm) {
-    settingsForm.addEventListener("submit", (event) => {
-      event.preventDefault();
-      saveSettings();
-    });
-  }
-
-  // Reset Button
-  if (resetButton) {
-    resetButton.addEventListener("click", () => {
-      if (confirm("Reset all fields to default values?")) {
-        localStorage.removeItem("capsuleSettings");
-        isFormDirty = false;
-        location.reload();
-      }
-    });
-  }
-
-  // Hardware Connection Ping Test
-  if (testSerialButton) {
-    testSerialButton.addEventListener("click", () => {
-      const port = comPortInput ? comPortInput.value : "COM Port";
-      testSerialButton.innerText = "⏳ Pinging...";
-      testSerialButton.disabled = true;
-
-      setTimeout(() => {
-        testSerialButton.disabled = false;
-        testSerialButton.innerHTML = '<span class="material-symbols-outlined">cable</span> Test Serial Connection';
-        alert(`📡 Signal Ack: Receiver responsive on ${port}`);
-        addSystemLog(`Serial loopback verified on ${port}`);
-      }, 1200);
-    });
-  }
-
-  // Hotkey: Ctrl + S / Cmd + S to save
-  document.addEventListener("keydown", (event) => {
-    if ((event.ctrlKey || event.metaKey) && event.key === "s") {
-      event.preventDefault();
-      saveSettings();
-    }
+  overlay.addEventListener('click', () => {
+    body.classList.remove('sidebar-open');
+    overlay.classList.remove('active');
   });
 
-  // ------------------------------------------------------------------
-  // 5. INITIALIZATION
-  // ------------------------------------------------------------------
-  setupPasswordVisibilityToggle();
-  setupTelemetryPreview();
-  setupNetworkMonitor();
-  setupComPortScanner();
-  setupConfigImport();
-  setupUnsavedChangesWarning();
-  loadSettings();
+  /* ------------------------------------------------------------------------
+     FUNCTIONALITY 2: LIVE AVATAR & SOS SLIDER DISPLAY
+     ------------------------------------------------------------------------ */
+  const sosInput = document.getElementById('sos-delay');
+  const sosValDisplay = document.getElementById('sos-val');
+  const adminNameInput = document.getElementById('admin-name');
+  const profileDisplayName = document.getElementById('profileDisplayName');
+  const avatarText = document.getElementById('avatarText');
+
+  if (sosInput && sosValDisplay) {
+    sosInput.addEventListener('input', (e) => {
+      const val = e.target.value;
+      sosValDisplay.textContent = `${val} Second${val > 1 ? 's' : ''}`;
+    });
+  }
+
+  if (adminNameInput) {
+    adminNameInput.addEventListener('input', (e) => {
+      const nameVal = e.target.value.trim();
+      
+      if (profileDisplayName) {
+        profileDisplayName.textContent = nameVal || 'Admin';
+      }
+
+      if (avatarText) {
+        if (!nameVal) {
+          avatarText.textContent = 'A';
+        } else {
+          const parts = nameVal.split(' ').filter(p => p.length > 0);
+          if (parts.length >= 2) {
+            avatarText.textContent = (parts[0][0] + parts[1][0]).toUpperCase();
+          } else {
+            avatarText.textContent = parts[0][0].toUpperCase();
+          }
+        }
+      }
+    });
+  }
+
+  /* ------------------------------------------------------------------------
+     FUNCTIONALITY 3: SETTINGS PERSISTENCE (LOCAL STORAGE)
+     ------------------------------------------------------------------------ */
+  const settingsForm = document.getElementById('settings-form');
+
+  const defaultSettings = {
+    adminName: 'Neville',
+    adminEmail: 'neville@capsuletracker.local',
+    gpsPing: '5',
+    sosDelay: '3',
+    primaryPhone: '+237 600000000',
+    secondaryPhone: '',
+    tamperAlarm: true,
+    geofenceAlert: true,
+    batteryAlert: true,
+    vitalsAlert: true,
+    comPort: 'COM3 (GSM / GPS Module)',
+    baudRate: '115200',
+    dbName: 'capsule_telemetry.db'
+  };
+
+  function loadSavedSettings() {
+    const saved = localStorage.getItem('capsule_tracker_settings');
+    const settings = saved ? JSON.parse(saved) : defaultSettings;
+
+    // Admin Profile
+    if (adminNameInput) {
+      adminNameInput.value = settings.adminName || defaultSettings.adminName;
+      adminNameInput.dispatchEvent(new Event('input'));
+    }
+    if (document.getElementById('admin-email')) {
+      document.getElementById('admin-email').value = settings.adminEmail || defaultSettings.adminEmail;
+    }
+
+    // Telemetry & GPS
+    if (document.getElementById('gps-ping')) {
+      document.getElementById('gps-ping').value = settings.gpsPing || defaultSettings.gpsPing;
+    }
+    if (sosInput) {
+      sosInput.value = settings.sosDelay || defaultSettings.sosDelay;
+      sosInput.dispatchEvent(new Event('input'));
+    }
+
+    // GSM Contacts
+    if (document.getElementById('primary-phone')) {
+      document.getElementById('primary-phone').value = settings.primaryPhone || defaultSettings.primaryPhone;
+    }
+    if (document.getElementById('secondary-phone')) {
+      document.getElementById('secondary-phone').value = settings.secondaryPhone || '';
+    }
+
+    // Safety Alarms
+    if (document.getElementById('tamperAlarm')) {
+      document.getElementById('tamperAlarm').checked = settings.tamperAlarm !== undefined ? settings.tamperAlarm : true;
+    }
+    if (document.getElementById('geofenceAlert')) {
+      document.getElementById('geofenceAlert').checked = settings.geofenceAlert !== undefined ? settings.geofenceAlert : true;
+    }
+    if (document.getElementById('batteryAlert')) {
+      document.getElementById('batteryAlert').checked = settings.batteryAlert !== undefined ? settings.batteryAlert : true;
+    }
+    if (document.getElementById('vitalsAlert')) {
+      document.getElementById('vitalsAlert').checked = settings.vitalsAlert !== undefined ? settings.vitalsAlert : true;
+    }
+
+    // Module Link & DB
+    if (document.getElementById('com-port')) {
+      document.getElementById('com-port').value = settings.comPort || defaultSettings.comPort;
+    }
+    if (document.getElementById('baud-rate')) {
+      document.getElementById('baud-rate').value = settings.baudRate || defaultSettings.baudRate;
+    }
+    if (document.getElementById('db-name')) {
+      document.getElementById('db-name').value = settings.dbName || defaultSettings.dbName;
+    }
+  }
+
+  loadSavedSettings();
+
+  if (settingsForm) {
+    settingsForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const updatedSettings = {
+        adminName: adminNameInput ? adminNameInput.value : defaultSettings.adminName,
+        adminEmail: document.getElementById('admin-email') ? document.getElementById('admin-email').value : defaultSettings.adminEmail,
+        gpsPing: document.getElementById('gps-ping') ? document.getElementById('gps-ping').value : defaultSettings.gpsPing,
+        sosDelay: sosInput ? sosInput.value : defaultSettings.sosDelay,
+        primaryPhone: document.getElementById('primary-phone') ? document.getElementById('primary-phone').value : defaultSettings.primaryPhone,
+        secondaryPhone: document.getElementById('secondary-phone') ? document.getElementById('secondary-phone').value : '',
+        tamperAlarm: document.getElementById('tamperAlarm') ? document.getElementById('tamperAlarm').checked : true,
+        geofenceAlert: document.getElementById('geofenceAlert') ? document.getElementById('geofenceAlert').checked : true,
+        batteryAlert: document.getElementById('batteryAlert') ? document.getElementById('batteryAlert').checked : true,
+        vitalsAlert: document.getElementById('vitalsAlert') ? document.getElementById('vitalsAlert').checked : true,
+        comPort: document.getElementById('com-port') ? document.getElementById('com-port').value : defaultSettings.comPort,
+        baudRate: document.getElementById('baud-rate') ? document.getElementById('baud-rate').value : defaultSettings.baudRate,
+        dbName: document.getElementById('db-name') ? document.getElementById('db-name').value : defaultSettings.dbName
+      };
+
+      localStorage.setItem('capsule_tracker_settings', JSON.stringify(updatedSettings));
+      showToast('Device settings updated and saved!', 'success');
+    });
+  }
+
+  /* ------------------------------------------------------------------------
+     FUNCTIONALITY 4: HARDWARE ACTIONS (SERIAL TEST & RESET DEFAULTS)
+     ------------------------------------------------------------------------ */
+  const testSerialBtn = document.getElementById('testSerialBtn');
+  const resetDefaultsBtn = document.getElementById('resetDefaultsBtn');
+
+  if (testSerialBtn) {
+    testSerialBtn.addEventListener('click', () => {
+      const originalHTML = testSerialBtn.innerHTML;
+      testSerialBtn.disabled = true;
+      testSerialBtn.innerHTML = `<span class="material-symbols-outlined">sync</span> Testing Link...`;
+
+      setTimeout(() => {
+        testSerialBtn.disabled = false;
+        testSerialBtn.innerHTML = originalHTML;
+        showToast('Serial Connection Active (115200 Baud OK)', 'info');
+      }, 1500);
+    });
+  }
+
+  if (resetDefaultsBtn) {
+    resetDefaultsBtn.addEventListener('click', () => {
+      if (confirm('Are you sure you want to restore all settings to system defaults?')) {
+        localStorage.removeItem('capsule_tracker_settings');
+        loadSavedSettings();
+        showToast('Restored system default parameters.', 'info');
+      }
+    });
+  }
+
+  /* ------------------------------------------------------------------------
+     FUNCTIONALITY 5: TOAST NOTIFICATION SYSTEM
+     ------------------------------------------------------------------------ */
+  function showToast(message, type = 'success') {
+    const toastContainer = document.getElementById('toastContainer');
+    if (!toastContainer) return;
+
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+
+    const iconName = type === 'success' ? 'check_circle' : 'info';
+
+    toast.innerHTML = `
+      <span class="material-symbols-outlined">${iconName}</span>
+      <span>${message}</span>
+    `;
+
+    toastContainer.appendChild(toast);
+
+    setTimeout(() => {
+      toast.style.animation = 'slideIn 0.3s ease-out reverse forwards';
+      setTimeout(() => {
+        toast.remove();
+      }, 300);
+    }, 3000);
+  }
+
 });

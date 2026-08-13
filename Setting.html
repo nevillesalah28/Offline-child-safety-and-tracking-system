@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Capsule Tracker | Device Settings</title>
-  <!-- Google Fonts & Material Symbols for Icons -->
+  <!-- Google Fonts & Material Symbols -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
@@ -38,7 +38,7 @@
       </nav>
 
       <div class="sidebar-footer">
-        <span class="status-dot online"></span> Receiver Connected
+        <span class="status-dot online"></span> GSM & GPS Module Connected
       </div>
     </aside>
 
@@ -48,14 +48,13 @@
       <!-- TOP HEADER WITH SIDEBAR TOGGLE & ACTIONS -->
       <header class="top-header">
         <div class="header-left">
-          <!-- SIDEBAR TOGGLE BUTTON -->
           <button id="sidebarToggle" class="btn-toggle" aria-label="Toggle Navigation">
             <span class="material-symbols-outlined">menu</span>
           </button>
 
           <div class="header-title">
             <h1>Device Settings</h1>
-            <p>Configure Capsule Tracker parameters, telemetry sync, and safety triggers</p>
+            <p>Configure Capsule Tracker hardware, GPS telemetry, and alert triggers</p>
           </div>
         </div>
 
@@ -69,10 +68,10 @@
         </div>
       </header>
 
-      <!-- SETTINGS GRID -->
+      <!-- SETTINGS FORM GRID -->
       <form id="settings-form" class="settings-grid">
         
-        <!-- SECTION 1: ADMIN PROFILE -->
+        <!-- SECTION 1: SYSTEM ADMIN PROFILE -->
         <article class="card settings-card">
           <div class="card-header">
             <h3><span class="material-symbols-outlined header-icon">manage_accounts</span> System Admin Profile</h3>
@@ -81,10 +80,7 @@
           
           <div class="profile-header-inline">
             <div class="avatar-container">
-              <div class="avatar-placeholder" id="avatarText">LN</div>
-              <button type="button" class="btn-avatar-edit" id="changeAvatarBtn" title="Change Avatar">
-                <span class="material-symbols-outlined">edit</span>
-              </button>
+              <div class="avatar-placeholder" id="avatarText">N</div>
             </div>
             <div class="profile-details">
               <h4 id="profileDisplayName">Neville</h4>
@@ -104,33 +100,24 @@
             </div>
 
             <div class="form-group">
-              <label for="admin-password">Access PIN / Password</label>
+              <label for="admin-password">Access PIN / Master Password</label>
               <input type="password" id="admin-password" class="form-input" placeholder="••••••••">
             </div>
           </div>
         </article>
 
-        <!-- SECTION 2: LORA TELEMETRY & HARDWARE -->
+        <!-- SECTION 2: GPS TELEMETRY & HARDWARE -->
         <article class="card settings-card">
           <div class="card-header">
-            <h3><span class="material-symbols-outlined header-icon">wifi_tethering</span> LoRa Telemetry & GPS</h3>
+            <h3><span class="material-symbols-outlined header-icon">location_on</span> GPS & Location Telemetry</h3>
             <span class="badge badge-info">Hardware</span>
           </div>
 
           <div class="form-container">
             <div class="form-group">
-              <label for="lora-freq">LoRa Operating Frequency</label>
-              <select id="lora-freq" class="form-input form-select">
-                <option value="868">868 MHz (EU / Africa Standard)</option>
-                <option value="915" selected>915 MHz (US / Off-Grid Band)</option>
-                <option value="433">433 MHz (Long Range)</option>
-              </select>
-            </div>
-
-            <div class="form-group">
-              <label for="gps-ping">GPS Ping Interval</label>
+              <label for="gps-ping">GPS Location Ping Interval</label>
               <select id="gps-ping" class="form-input form-select">
-                <option value="1">1 Second (Real-Time Tracking)</option>
+                <option value="1">1 Second (Real-Time Dynamic)</option>
                 <option value="5" selected>5 Seconds (Balanced Mode)</option>
                 <option value="15">15 Seconds (Power Saver)</option>
               </select>
@@ -138,16 +125,38 @@
 
             <div class="form-group">
               <div class="slider-header">
-                <label for="sos-delay">SOS Button Hold Trigger</label>
+                <label for="sos-delay">SOS Panic Button Hold Duration</label>
                 <span class="slider-value" id="sos-val">3 Seconds</span>
               </div>
               <input type="range" id="sos-delay" class="form-range" min="1" max="10" value="3">
-              <span class="text-muted">Prevents accidental panic triggers on the wristband.</span>
+              <span class="text-muted">Required hold duration to prevent accidental emergency triggers.</span>
             </div>
           </div>
         </article>
 
-        <!-- SECTION 3: SAFETY ALERTS -->
+        <!-- SECTION 3: SIM800L EMERGENCY SMS CONTACTS -->
+        <article class="card settings-card">
+          <div class="card-header">
+            <h3><span class="material-symbols-outlined header-icon">sms</span> SIM800L GSM Emergency Contacts</h3>
+            <span class="badge badge-success">GPRS / SMS</span>
+          </div>
+
+          <div class="form-container">
+            <div class="form-group">
+              <label for="primary-phone">Primary SOS Phone Number</label>
+              <input type="tel" id="primary-phone" class="form-input" value="+237 600000000" placeholder="+237 6XXXXXXXX">
+            </div>
+
+            <div class="form-group">
+              <label for="secondary-phone">Secondary / Backup Phone Number</label>
+              <input type="tel" id="secondary-phone" class="form-input" placeholder="+237 6XXXXXXXX">
+            </div>
+
+            <span class="text-muted">The SIM800L module dispatches instant SMS alerts with GPS coordinates to these numbers on panic or tamper events.</span>
+          </div>
+        </article>
+
+        <!-- SECTION 4: SAFETY & SENSOR ALARM TRIGGERS -->
         <article class="card settings-card">
           <div class="card-header">
             <h3><span class="material-symbols-outlined header-icon">notifications</span> Safety & Alarm Triggers</h3>
@@ -158,7 +167,7 @@
             <div class="toggle-item">
               <div class="toggle-info">
                 <h4>Strap Removal / Tamper Alarm</h4>
-                <p class="text-muted">Sound siren if wristband clasp is unbuckled or cut</p>
+                <p class="text-muted">Alert system if wristband latch opens or circuit breaks</p>
               </div>
               <label class="toggle-switch">
                 <input type="checkbox" id="tamperAlarm" checked>
@@ -168,8 +177,8 @@
 
             <div class="toggle-item">
               <div class="toggle-info">
-                <h4>Geofence Boundary Violation</h4>
-                <p class="text-muted">Trigger warning if child exits safe zone radius</p>
+                <h4>Geofence Boundary Breach</h4>
+                <p class="text-muted">Trigger warning when target exits configured safe zone</p>
               </div>
               <label class="toggle-switch">
                 <input type="checkbox" id="geofenceAlert" checked>
@@ -179,8 +188,8 @@
 
             <div class="toggle-item">
               <div class="toggle-info">
-                <h4>Low Wristband Battery Alert</h4>
-                <p class="text-muted">Notify dashboard when battery drops below 15%</p>
+                <h4>Low Battery Notification</h4>
+                <p class="text-muted">Flag warning when wristband battery drops below 15%</p>
               </div>
               <label class="toggle-switch">
                 <input type="checkbox" id="batteryAlert" checked>
@@ -190,8 +199,8 @@
 
             <div class="toggle-item">
               <div class="toggle-info">
-                <h4>Vitals Anomaly Alert (BPM / SpO2)</h4>
-                <p class="text-muted">Flag warning if vitals deviate from normal levels</p>
+                <h4>MAX30102 Vitals Anomaly Alert</h4>
+                <p class="text-muted">Flag alert if heart rate or SpO₂ strays from safe boundaries</p>
               </div>
               <label class="toggle-switch">
                 <input type="checkbox" id="vitalsAlert" checked>
@@ -202,10 +211,10 @@
           </div>
         </article>
 
-        <!-- SECTION 4: RECEIVER DONGLE & LOCAL SYNC -->
+        <!-- SECTION 5: SERIAL LINK & STORAGE -->
         <article class="card settings-card">
           <div class="card-header">
-            <h3><span class="material-symbols-outlined header-icon">usb</span> Receiver Dongle & Storage</h3>
+            <h3><span class="material-symbols-outlined header-icon">usb</span> Hardware Interface & Storage</h3>
             <span class="badge badge-success" id="dongleStatusBadge">Online</span>
           </div>
 
@@ -213,7 +222,7 @@
             <div class="form-row">
               <div class="form-group flex-2">
                 <label for="com-port">Serial / USB Port</label>
-                <input type="text" id="com-port" class="form-input" value="COM3 (LoRa Receiver)">
+                <input type="text" id="com-port" class="form-input" value="COM3 (GSM / GPS Module)">
               </div>
               <div class="form-group flex-1">
                 <label for="baud-rate">Baud Rate</label>
@@ -222,13 +231,13 @@
             </div>
 
             <div class="form-group">
-              <label for="db-name">Local Telemetry Log File</label>
+              <label for="db-name">Local Telemetry Log Database</label>
               <input type="text" id="db-name" class="form-input" value="capsule_telemetry.db">
             </div>
 
             <div class="db-action-row">
               <button type="button" class="btn btn-secondary btn-sm" id="testSerialBtn">
-                <span class="material-symbols-outlined">cable</span> Test Serial Connection
+                <span class="material-symbols-outlined">cable</span> Test Serial Link
               </button>
             </div>
           </div>
@@ -241,6 +250,6 @@
   <!-- Toast Container for User Feedback -->
   <div id="toastContainer" class="toast-container"></div>
 
-  <script src="Setting.js"></script>
+  <script src="setting.js"></script>
 </body>
 </html>

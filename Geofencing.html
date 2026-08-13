@@ -9,8 +9,6 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
   <link rel="stylesheet" href="Geofencing_style.css">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  
 </head>
 <body>
   <div class="app-layout">
@@ -40,7 +38,7 @@
       </nav>
 
       <div class="sidebar-footer">
-        <span class="status-dot online"></span> Receiver Connected
+        <span class="status-dot online"></span> SIM800L GPRS Online
       </div>
     </aside>
 
@@ -57,12 +55,12 @@
 
           <div class="header-title">
             <h1>Geofence Boundaries</h1>
-            <p>Define virtual perimeters and alert rules</p>
+            <p>Define virtual perimeters and cellular alert rules</p>
           </div>
         </div>
 
         <div class="system-status">
-          <div class="status-badge lora">
+          <div class="status-badge geofence">
             <span class="material-symbols-outlined">shield</span>
             <span>Active Zones: <strong id="activeZoneCount">2 Active</strong></span>
           </div>
@@ -149,7 +147,7 @@
             <h3>Configured Boundaries</h3>
             
             <div class="zones-list" id="activeZonesList">
-              <!-- Dynamically rendered or pre-populated via JS -->
+              <!-- Dynamically rendered via JavaScript -->
             </div>
           </article>
 
@@ -159,8 +157,8 @@
     </main>
   </div>
   
-<!-- Google Maps JavaScript API -->
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD5Q3dD97c3uslKUJO7aipRXt-VxjobNaM"></script>
+  <!-- Demo Google Maps Key retained -->
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD5Q3dD97c3uslKUJO7aipRXt-VxjobNaM"></script>
   <script src="Geofencing.js"></script>
 </body>
 </html>

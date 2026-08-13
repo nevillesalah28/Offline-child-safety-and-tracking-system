@@ -1,10 +1,12 @@
-// Geofencing.js
+// ==========================================================================
+// CAPSULE TRACKER - GEOFENCING LOGIC & MAP ENGINE
+// ==========================================================================
 
 document.addEventListener('DOMContentLoaded', () => {
 
-  // =========================================================================
-  // FUNCTIONALITY 1: REAL-TIME RADIUS SLIDER DISPLAY
-  // =========================================================================
+  /* ------------------------------------------------------------------------
+     FUNCTIONALITY 1: REAL-TIME RADIUS SLIDER DISPLAY
+     ------------------------------------------------------------------------ */
   const zoneRadiusInput = document.getElementById('zoneRadius');
   const radiusValueDisplay = document.getElementById('radiusValue');
 
@@ -14,10 +16,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-
-  // =========================================================================
-  // FUNCTIONALITY 2: SIDEBAR TOGGLE & OFF-CANVAS RESPONSIVE DRAWER
-  // =========================================================================
+  /* ------------------------------------------------------------------------
+     FUNCTIONALITY 2: SIDEBAR TOGGLE & OFF-CANVAS RESPONSIVE DRAWER
+     ------------------------------------------------------------------------ */
   const sidebarToggleBtn = document.getElementById('sidebarToggle');
   const body = document.body;
 
@@ -33,6 +34,12 @@ document.addEventListener('DOMContentLoaded', () => {
       } else {
         body.classList.toggle('sidebar-collapsed');
       }
+
+      setTimeout(() => {
+        if (mapInstance && typeof google !== 'undefined') {
+          google.maps.event.trigger(mapInstance, 'resize');
+        }
+      }, 300);
     });
   }
 
@@ -41,29 +48,48 @@ document.addEventListener('DOMContentLoaded', () => {
     overlay.classList.remove('active');
   });
 
-
-  // =========================================================================
-  // FUNCTIONALITY 3: BOUNDARIES DATA & DYNAMIC UI RENDERING
-  // =========================================================================
-  let geofenceZones = [
-    {
-      id: 1,
-      name: 'Home Perimeter',
-      type: 'safe',
-      radius: 200,
-      isActive: true
-    },
-    {
-      id: 2,
-      name: 'Busy Road Highway',
-      type: 'danger',
-      radius: 350,
-      isActive: true
-    }
-  ];
+  /* ------------------------------------------------------------------------
+     FUNCTIONALITY 3: BOUNDARIES DATA & API INTEGRATION
+     ------------------------------------------------------------------------ */
+  let geofenceZones = [];
 
   const activeZonesList = document.getElementById('activeZonesList');
   const activeZoneCount = document.getElementById('activeZoneCount');
+
+  // FETCH ALL GEOFENCES FROM DATABASE
+  async function loadGeofences() {
+    try {
+      const response = await fetch('get_geofences.php');
+      const rawText = await response.text();
+      let data;
+
+      try {
+        data = JSON.parse(rawText);
+      } catch (e) {
+        console.error('Invalid JSON from get_geofences.php:', rawText);
+        return;
+      }
+
+      if (data.status === 'success') {
+        geofenceZones = data.geofences.map(zone => ({
+          id: zone.id,
+          name: zone.name,
+          type: zone.type,
+          radius: zone.radius,
+          lat: zone.centerLat,
+          lng: zone.centerLng,
+          isActive: zone.isActive
+        }));
+
+        renderGeofenceList();
+        updateMapCircles();
+      } else {
+        console.error('Failed to load geofences:', data.message);
+      }
+    } catch (error) {
+      console.error('API Error (loadGeofences):', error);
+    }
+  }
 
   function renderGeofenceList() {
     if (!activeZonesList) return;
@@ -132,93 +158,184 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  renderGeofenceList();
-
-
-  // =========================================================================
-  // FUNCTIONALITY 4: ADD NEW BOUNDARY VIA FORM SUBMISSION
-  // =========================================================================
+  /* ------------------------------------------------------------------------
+     FUNCTIONALITY 4: SAVE NEW BOUNDARY TO DATABASE VIA API
+     ------------------------------------------------------------------------ */
   const geofenceForm = document.getElementById('geofenceForm');
   const zoneNameInput = document.getElementById('zoneName');
   const zoneTypeSelect = document.getElementById('zoneType');
 
+  let currentSelectedPos = { lat: 3.8480, lng: 11.5021 };
+
   if (geofenceForm) {
-    geofenceForm.addEventListener('submit', (event) => {
+    geofenceForm.addEventListener('submit', async (event) => {
       event.preventDefault();
+
+      const submitBtn = geofenceForm.querySelector('button[type="submit"]');
+      const originalBtnHtml = submitBtn ? submitBtn.innerHTML : '';
 
       const name = zoneNameInput.value.trim();
       const type = zoneTypeSelect.value;
       const radius = parseInt(zoneRadiusInput.value, 10);
 
-      if (!name) return;
+      if (!name) {
+        alert('Please enter a boundary name.');
+        return;
+      }
 
-      const newZone = {
-        id: Date.now(),
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="material-symbols-outlined">sync</span> Saving...';
+      }
+
+      const payload = {
         name: name,
         type: type,
         radius: radius,
-        isActive: true
+        centerLat: currentSelectedPos.lat,
+        centerLng: currentSelectedPos.lng
       };
 
-      geofenceZones.push(newZone);
-      renderGeofenceList();
+      try {
+        const response = await fetch('save_geofence.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
 
-      geofenceForm.reset();
-      if (radiusValueDisplay) {
-        radiusValueDisplay.textContent = '200';
+        const rawText = await response.text();
+        let data;
+
+        try {
+          data = JSON.parse(rawText);
+        } catch (jsonErr) {
+          console.error('PHP Output error:', rawText);
+          alert('Backend PHP Error:\n' + rawText.substring(0, 300));
+          return;
+        }
+
+        if (data.status === 'success') {
+          await loadGeofences();
+          geofenceForm.reset();
+          if (radiusValueDisplay) {
+            radiusValueDisplay.textContent = '200';
+          }
+        } else {
+          alert('Error saving geofence: ' + data.message);
+        }
+      } catch (error) {
+        console.error('API Error (save_geofence):', error);
+        alert('Network Error: Could not reach save_geofence.php');
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = originalBtnHtml;
+        }
       }
     });
   }
 
-
-  // =========================================================================
-  // FUNCTIONALITY 5: TOGGLING ACTIVE STATES & DELETING BOUNDARIES
-  // =========================================================================
+  /* ------------------------------------------------------------------------
+     FUNCTIONALITY 5: TOGGLING ACTIVE STATES & DELETING FROM DATABASE
+     ------------------------------------------------------------------------ */
   if (activeZonesList) {
 
-    activeZonesList.addEventListener('click', (event) => {
+    // DELETE GEOFENCE
+    activeZonesList.addEventListener('click', async (event) => {
       const deleteBtn = event.target.closest('.btn-delete-zone');
       
       if (deleteBtn) {
         const zoneId = Number(deleteBtn.dataset.id);
-        geofenceZones = geofenceZones.filter(zone => zone.id !== zoneId);
-        renderGeofenceList();
+
+        try {
+          const response = await fetch('delete_geofence.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: zoneId })
+          });
+
+          const rawText = await response.text();
+          let data;
+          try {
+            data = JSON.parse(rawText);
+          } catch (e) {
+            alert('Backend error deleting boundary:\n' + rawText.substring(0, 200));
+            return;
+          }
+
+          if (data.status === 'success') {
+            await loadGeofences();
+          } else {
+            alert('Error deleting zone: ' + data.message);
+          }
+        } catch (error) {
+          console.error('API Error (delete_geofence):', error);
+        }
       }
     });
 
-    activeZonesList.addEventListener('change', (event) => {
+    // TOGGLE GEOFENCE ACTIVE STATE
+    activeZonesList.addEventListener('change', async (event) => {
       if (event.target.classList.contains('zone-toggle')) {
         const zoneId = Number(event.target.dataset.id);
-        const targetZone = geofenceZones.find(zone => zone.id === zoneId);
-        if (targetZone) {
-          targetZone.isActive = event.target.checked;
-          updateActiveCount();
+        const isChecked = event.target.checked;
+
+        try {
+          const response = await fetch('toggle_geofence.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: zoneId, isActive: isChecked })
+          });
+
+          const rawText = await response.text();
+          let data;
+          try {
+            data = JSON.parse(rawText);
+          } catch (e) {
+            event.target.checked = !isChecked;
+            alert('Backend error updating status:\n' + rawText.substring(0, 200));
+            return;
+          }
+
+          if (data.status === 'success') {
+            const targetZone = geofenceZones.find(z => z.id === zoneId);
+            if (targetZone) targetZone.isActive = isChecked;
+            updateActiveCount();
+            updateMapCircles();
+          } else {
+            event.target.checked = !isChecked;
+            alert('Failed to update zone status: ' + data.message);
+          }
+        } catch (error) {
+          console.error('API Error (toggle_geofence):', error);
+          event.target.checked = !isChecked;
         }
       }
     });
 
   }
 
+  /* ------------------------------------------------------------------------
+     FUNCTIONALITY 6: LIVE GOOGLE MAP INTEGRATION & DYNAMIC RADIUS CIRCLES
+     ------------------------------------------------------------------------ */
+  let mapInstance = null;
+  let previewMarker = null;
+  let previewCircle = null;
+  let activeMapCircles = [];
 
-// =========================================================================
-  // FUNCTIONALITY 6: LIVE GOOGLE MAP INTEGRATION & DYNAMIC RADIUS CIRCLE
-  // =========================================================================
-  const mapElement = document.getElementById('geofenceMap');
+  const YAOUNDE_CENTER = { lat: 3.8480, lng: 11.5021 };
 
-  if (mapElement && typeof google !== 'undefined') {
-    // 1. Clear placeholder HTML text
+  function initGeofenceMap() {
+    const mapElement = document.getElementById('geofenceMap');
+    if (!mapElement || typeof google === 'undefined') return;
+
     mapElement.innerHTML = '';
 
-    // Default map coordinates (Yaoundé center)
-    const defaultPos = { lat: 3.8480, lng: 11.5021 };
-
-    // 2. Initialize Google Map with Dark Theme Styling
-    const map = new google.maps.Map(mapElement, {
-      center: defaultPos,
+    mapInstance = new google.maps.Map(mapElement, {
+      center: YAOUNDE_CENTER,
       zoom: 14,
       disableDefaultUI: false,
       zoomControl: true,
-      // Custom Dark Theme styles matching your interface
       styles: [
         { elementType: "geometry", stylers: [{ color: "#1d283c" }] },
         { elementType: "labels.text.stroke", stylers: [{ color: "#1d283c" }] },
@@ -234,43 +351,89 @@ document.addEventListener('DOMContentLoaded', () => {
       ]
     });
 
-    // 3. Create initial Center Pin Marker
-    const marker = new google.maps.Marker({
-      position: defaultPos,
-      map: map,
-      title: "Selected Zone Center"
+    previewMarker = new google.maps.Marker({
+      position: YAOUNDE_CENTER,
+      map: mapInstance,
+      title: "New Boundary Center",
+      draggable: true
     });
 
-    // 4. Create Geofence Perimeter Visual Circle
     let currentRadius = parseInt(zoneRadiusInput ? zoneRadiusInput.value : 200, 10);
-
-    const fenceCircle = new google.maps.Circle({
-      strokeColor: "#10b981",    // Green boundary line
+    previewCircle = new google.maps.Circle({
+      strokeColor: "#38bdf8",
       strokeOpacity: 0.8,
       strokeWeight: 2,
-      fillColor: "#10b981",      // Semi-transparent green fill
-      fillOpacity: 0.2,
-      map: map,
-      center: defaultPos,
-      radius: currentRadius      // In meters
+      fillColor: "#38bdf8",
+      fillOpacity: 0.15,
+      map: mapInstance,
+      center: YAOUNDE_CENTER,
+      radius: currentRadius
     });
 
-    // 5. Connect Radius Slider to Google Maps Circle
     if (zoneRadiusInput) {
       zoneRadiusInput.addEventListener('input', (e) => {
         const newRadius = parseInt(e.target.value, 10);
-        fenceCircle.setRadius(newRadius);
+        previewCircle.setRadius(newRadius);
       });
     }
 
-    // 6. Handle Clicks on Map to Reposition Pin & Boundary Circle
-    map.addListener('click', (event) => {
-      const clickedPos = event.latLng;
+    if (zoneTypeSelect) {
+      zoneTypeSelect.addEventListener('change', (e) => {
+        const isSafe = e.target.value === 'safe';
+        const color = isSafe ? '#10b981' : '#ef4444';
+        previewCircle.setOptions({ strokeColor: color, fillColor: color });
+      });
+    }
 
-      // Move marker and fence circle center
-      marker.setPosition(clickedPos);
-      fenceCircle.setCenter(clickedPos);
+    mapInstance.addListener('click', (event) => {
+      currentSelectedPos = { lat: event.latLng.lat(), lng: event.latLng.lng() };
+      previewMarker.setPosition(currentSelectedPos);
+      previewCircle.setCenter(currentSelectedPos);
     });
+
+    previewMarker.addListener('dragend', (event) => {
+      currentSelectedPos = { lat: event.latLng.lat(), lng: event.latLng.lng() };
+      previewCircle.setCenter(currentSelectedPos);
+    });
+
+    updateMapCircles();
+  }
+
+  function updateMapCircles() {
+    if (!mapInstance) return;
+
+    activeMapCircles.forEach(circle => circle.setMap(null));
+    activeMapCircles = [];
+
+    geofenceZones.forEach(zone => {
+      if (!zone.isActive) return;
+
+      const isSafe = zone.type === 'safe';
+      const color = isSafe ? '#22c55e' : '#ef4444';
+
+      const circle = new google.maps.Circle({
+        strokeColor: color,
+        strokeOpacity: 0.8,
+        strokeWeight: 2,
+        fillColor: color,
+        fillOpacity: 0.2,
+        map: mapInstance,
+        center: { lat: zone.lat, lng: zone.lng },
+        radius: zone.radius
+      });
+
+      activeMapCircles.push(circle);
+    });
+  }
+
+  // Load geofences independently on DOM ready
+  loadGeofences();
+
+  // Initialize Map Engine
+  if (typeof google !== 'undefined') {
+    initGeofenceMap();
+  } else {
+    window.addEventListener('load', initGeofenceMap);
   }
 
 });

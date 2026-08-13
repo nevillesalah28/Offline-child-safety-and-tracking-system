@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Capsule Tracker | Telemetry Simulator</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --border: #334155;
+      --accent: #38bdf8;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --success: #10b981;
+      --text: #f8fafc;
+      --subtext: #94a3b8;
+    }
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding: 20px;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+    }
+    .container {
+      width: 100%;
+      max-width: 540px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .card {
+      background: var(--card-bg);
+      padding: 24px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3);
+    }
+    .header-flex {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    h2 {
+      margin: 0;
+      color: var(--accent);
+      font-size: 1.3rem;
+    }
+    .badge {
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 20px;
+      background: #0284c7;
+      color: #fff;
+      font-weight: 600;
+    }
+    .badge.active {
+      background: var(--success);
+      animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse {
+      0% { opacity: 1; }
+      50% { opacity: 0.4; }
+      100% { opacity: 1; }
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    label {
+      display: block;
+      margin-top: 8px;
+      color: var(--subtext);
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin-top: 4px;
+      background: #0f172a;
+      border: 1px solid var(--border);
+      color: #fff;
+      border-radius: 6px;
+      box-sizing: border-box;
+      font-size: 0.9rem;
+    }
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    .btn-group {
+      display: flex;
+      gap: 8px;
+      margin-top: 16px;
+    }
+    button {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      font-weight: bold;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: 0.85rem;
+    }
+    .btn-primary { background: var(--accent); color: #0f172a; }
+    .btn-primary:hover { background: #0284c7; color: #fff; }
+    .btn-danger { background: var(--danger); color: #fff; }
+    .btn-danger:hover { background: #dc2626; }
+    .btn-warning { background: var(--warning); color: #0f172a; }
+    .btn-warning:hover { background: #d97706; }
+    .btn-stream { background: #8b5cf6; color: #fff; }
+    .btn-stream.active { background: var(--danger); }
+    
+    pre {
+      background: #0b1120;
+      padding: 12px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      overflow-x: auto;
+      margin-top: 15px;
+      border: 1px solid var(--border);
+      color: #38bdf8;
+      max-height: 180px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <div class="header-flex">
+        <h2>Wristband Simulator</h2>
+        <span id="statusBadge" class="badge">MANUAL MODE</span>
+      </div>
+
+      <form id="simForm">
+        <div class="grid">
+          <div>
+            <label>Latitude</label>
+            <input type="text" id="lat" value="3.8480">
+          </div>
+          <div>
+            <label>Longitude</label>
+            <input type="text" id="lng" value="11.5021">
+          </div>
+        </div>
+
+        <div class="grid">
+          <div>
+            <label>Heart Rate (BPM)</label>
+            <input type="number" id="hr" value="78">
+          </div>
+          <div>
+            <label>SpO2 (%)</label>
+            <input type="number" id="spo2" value="98">
+          </div>
+        </div>
+
+        <div class="grid">
+          <div>
+            <label>Speed (km/h)</label>
+            <input type="number" step="0.1" id="speed" value="3.5">
+          </div>
+          <div>
+            <label>Battery Level (%)</label>
+            <input type="number" id="battery" value="85">
+          </div>
+        </div>
+
+        <div class="grid">
+          <div>
+            <label>SOS Panic State</label>
+            <select id="sos">
+              <option value="0">Normal</option>
+              <option value="1">🚨 SOS Triggered!</option>
+            </select>
+          </div>
+          <div>
+            <label>Strap Tamper State</label>
+            <select id="tamper">
+              <option value="0">Strap Fastened</option>
+              <option value="1">⚠️ Strap Cut / Removed!</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="btn-group">
+          <button type="submit" class="btn-primary">Send Single Ping</button>
+          <button type="button" id="streamBtn" class="btn-stream">Start Live Stream (3s)</button>
+        </div>
+
+        <div class="btn-group">
+          <button type="button" id="sosPresetBtn" class="btn-danger">Quick SOS Alert</button>
+          <button type="button" id="tamperPresetBtn" class="btn-warning">Quick Strap Cut</button>
+        </div>
+      </form>
+
+      <pre id="responseOutput">JSON Server Response will appear here...</pre>
+    </div>
+  </div>
+
+  <script>
+    let streamTimer = null;
+
+    // Helper function to build JSON payload
+    function getPayload() {
+      return {
+        device_id: 'WRISTBAND_01',
+        latitude: parseFloat(document.getElementById('lat').value),
+        longitude: parseFloat(document.getElementById('lng').value),
+        speed: parseFloat(document.getElementById('speed').value),
+        heart_rate: parseInt(document.getElementById('hr').value),
+        spo2: parseInt(document.getElementById('spo2').value),
+        battery_level: parseInt(document.getElementById('battery').value),
+        sos_active: parseInt(document.getElementById('sos').value),
+        tamper_status: parseInt(document.getElementById('tamper').value)
+      };
+    }
+
+    // Core HTTP POST function targeting ingest_telemetry.php
+    async function sendTelemetry(isAutomated = false) {
+      const output = document.getElementById('responseOutput');
+      if (!isAutomated) output.textContent = 'Sending telemetry ping...';
+
+      const payload = getPayload();
+
+      try {
+        const res = await fetch('ingest_telemetry.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const result = await res.json();
+        
+        output.textContent = "Payload Sent:\n" + JSON.stringify(payload, null, 2) + 
+                           "\n\nServer Response:\n" + JSON.stringify(result, null, 2);
+
+      } catch (err) {
+        output.textContent = 'Connection Error: ' + err.message;
+      }
+    }
+
+    // 1. Manual Submit Form
+    document.getElementById('simForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      sendTelemetry();
+    });
+
+    // 2. Toggle Live Stream Mode (Simulates walking / GPS movement)
+    const streamBtn = document.getElementById('streamBtn');
+    const statusBadge = document.getElementById('statusBadge');
+
+    streamBtn.addEventListener('click', () => {
+      if (streamTimer) {
+        // Stop Streaming
+        clearInterval(streamTimer);
+        streamTimer = null;
+        streamBtn.textContent = 'Start Live Stream (3s)';
+        streamBtn.classList.remove('active');
+        statusBadge.textContent = 'MANUAL MODE';
+        statusBadge.classList.remove('active');
+      } else {
+        // Start Streaming
+        streamBtn.textContent = 'Stop Streaming';
+        streamBtn.classList.add('active');
+        statusBadge.textContent = 'LIVE STREAMING';
+        statusBadge.classList.add('active');
+
+        sendTelemetry(true);
+
+        streamTimer = setInterval(() => {
+          // Add small random GPS drift (approx. 5-15 meters)
+          const currentLat = parseFloat(document.getElementById('lat').value);
+          const currentLng = parseFloat(document.getElementById('lng').value);
+
+          document.getElementById('lat').value = (currentLat + (Math.random() - 0.5) * 0.0003).toFixed(6);
+          document.getElementById('lng').value = (currentLng + (Math.random() - 0.5) * 0.0003).toFixed(6);
+
+          sendTelemetry(true);
+        }, 3000);
+      }
+    });
+
+    // 3. Preset Action: Immediate Panic SOS
+    document.getElementById('sosPresetBtn').addEventListener('click', () => {
+      document.getElementById('sos').value = "1";
+      sendTelemetry();
+      setTimeout(() => { document.getElementById('sos').value = "0"; }, 2000);
+    });
+
+    // 4. Preset Action: Immediate Strap Tamper
+    document.getElementById('tamperPresetBtn').addEventListener('click', () => {
+      document.getElementById('tamper').value = "1";
+      sendTelemetry();
+      setTimeout(() => { document.getElementById('tamper').value = "0"; }, 2000);
+    });
+  </script>
+</body>
+</html>

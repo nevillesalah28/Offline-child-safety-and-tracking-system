@@ -38,7 +38,7 @@
       </nav>
 
       <div class="sidebar-footer">
-        <span class="status-dot online"></span> Receiver Connected
+        <span class="status-dot online"></span> SIM800L GPRS Online
       </div>
     </aside>
 
@@ -61,7 +61,7 @@
 
         <!-- Filter Bar -->
         <div class="history-filters">
-          <input type="date" id="historyDate" class="form-input" value="2026-07-23">
+          <input type="date" id="historyDate" class="form-input" value="2026-08-12">
           <select id="eventFilter" class="form-input">
             <option value="all">All Events</option>
             <option value="alerts">Alerts Only</option>
@@ -113,7 +113,7 @@
         <article class="card history-map-card">
           <div class="card-header">
             <h3>Route Trajectory Replay</h3>
-            <span class="badge live-badge" id="pointCountBadge">24 Points Logged</span>
+            <span class="badge live-badge" id="pointCountBadge">20 Points Logged</span>
           </div>
 
           <div id="historyMap" class="map-placeholder">
@@ -149,7 +149,7 @@
                   <strong>Periodic Location Update</strong>
                   <span class="timeline-time">15:05 WAT</span>
                 </div>
-                <p>3.8482° N, 11.5025° E • HR: 76 BPM • SpO2: 99%</p>
+                <p>3.8482° N, 11.5025° E • HR: 76 BPM • SpO₂: 99%</p>
               </div>
             </div>
 
@@ -163,7 +163,7 @@
                   <strong class="text-danger">Geofence Exit Detected</strong>
                   <span class="timeline-time">14:22 WAT</span>
                 </div>
-                <p>Child exited <strong>Pinnacle Academy</strong> (Safe Zone). Speed: 4.2 km/h</p>
+                <p>Child exited <strong>Bastos Safe Zone</strong>. Speed: 4.2 km/h</p>
               </div>
             </div>
 
@@ -201,7 +201,8 @@
       </section>
     </main>
   </div>
-
-  <script src="history.js"></script>
+ 
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD5Q3dD97c3uslKUJO7aipRXt-VxjobNaM"></script>
+  <script src="Tracking_History.js"></script>
 </body>
 </html>

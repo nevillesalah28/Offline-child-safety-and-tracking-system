@@ -2,7 +2,7 @@
    1. DESIGN SYSTEM & VARIABLES
    ========================================================================== */
 :root {
-  /* Color Palette - Dark IoT Theme */
+  /* Dark Theme Color Palette */
   --bg-dark: #0f172a;          /* Deep slate background */
   --bg-card: #1e293b;          /* Elevated card surface */
   --bg-card-hover: #334155;    /* Hover state for cards */
@@ -134,7 +134,6 @@ body {
   box-shadow: 0 0 8px var(--status-success);
 }
 
-/* Dim backdrop overlay for mobile navigation */
 .sidebar-overlay {
   display: none;
   position: fixed;
@@ -175,7 +174,6 @@ body {
   gap: 16px;
 }
 
-/* Sidebar Toggle Button */
 .btn-toggle {
   background-color: var(--bg-card);
   border: 1px solid var(--border-color);
@@ -216,7 +214,7 @@ body {
    ========================================================================== */
 .settings-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
   gap: 24px;
 }
 
@@ -281,10 +279,6 @@ body {
   border: 1px solid var(--border-color);
 }
 
-.avatar-container {
-  position: relative;
-}
-
 .avatar-placeholder {
   width: 48px;
   height: 48px;
@@ -295,33 +289,7 @@ body {
   align-items: center;
   justify-content: center;
   font-weight: 700;
-  font-size: 1.1rem;
-}
-
-.btn-avatar-edit {
-  position: absolute;
-  bottom: -2px;
-  right: -2px;
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  background-color: var(--bg-card);
-  border: 1px solid var(--border-color);
-  color: var(--text-main);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: var(--transition);
-}
-
-.btn-avatar-edit:hover {
-  background-color: var(--accent-primary);
-  color: var(--bg-dark);
-}
-
-.btn-avatar-edit .material-symbols-outlined {
-  font-size: 12px;
+  font-size: 1.15rem;
 }
 
 .profile-details h4 {
@@ -523,7 +491,7 @@ input:checked + .slider:before {
   font-size: 0.8rem;
 }
 
-/* Toast Notification Styles */
+/* Toast Notifications */
 .toast-container {
   position: fixed;
   bottom: 24px;
@@ -568,10 +536,8 @@ input:checked + .slider:before {
 }
 
 /* ==========================================================================
-   8. RESPONSIVE MEDIA QUERIES (DevTools Inspect Support)
+   8. RESPONSIVE MEDIA QUERIES
    ========================================================================== */
-
-/* Desktop Collapsed Sidebar State */
 body.sidebar-collapsed .sidebar {
   transform: translateX(-100%);
 }
@@ -580,14 +546,12 @@ body.sidebar-collapsed .main-content {
   margin-left: 0;
 }
 
-/* Tablets & Small Laptops (Under 1024px) */
 @media screen and (max-width: 1024px) {
   .settings-grid {
     grid-template-columns: 1fr;
   }
 }
 
-/* Off-Canvas Mobile Drawer (Under 992px) */
 @media screen and (max-width: 992px) {
   .sidebar {
     left: -280px;
@@ -604,7 +568,6 @@ body.sidebar-collapsed .main-content {
   }
 }
 
-/* Mobile Devices (Under 768px) */
 @media screen and (max-width: 768px) {
   .top-header {
     flex-direction: column;
@@ -628,7 +591,6 @@ body.sidebar-collapsed .main-content {
   }
 }
 
-/* Small Smartphones (Under 480px) */
 @media screen and (max-width: 480px) {
   .header-actions {
     grid-template-columns: 1fr;

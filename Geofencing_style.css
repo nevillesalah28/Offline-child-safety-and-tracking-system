@@ -222,6 +222,11 @@ body {
   font-size: 0.85rem;
 }
 
+.status-badge.geofence {
+  border-color: rgba(56, 189, 248, 0.4);
+  color: var(--accent-primary);
+}
+
 .status-badge.tamper.safe {
   border-color: rgba(34, 197, 94, 0.4);
   color: var(--status-success);
@@ -507,10 +512,9 @@ input:checked + .slider:before {
 }
 
 /* ==========================================================================
-   8. RESPONSIVE MEDIA QUERIES (DevTools Inspect Mode Support)
+   8. RESPONSIVE MEDIA QUERIES
    ========================================================================== */
 
-/* Desktop Collapse Mode */
 body.sidebar-collapsed .sidebar {
   transform: translateX(-100%);
 }
@@ -519,7 +523,6 @@ body.sidebar-collapsed .main-content {
   margin-left: 0;
 }
 
-/* Mobile/Tablet View (Under 992px) */
 @media screen and (max-width: 992px) {
   .sidebar {
     left: -280px;
@@ -544,7 +547,6 @@ body.sidebar-collapsed .main-content {
   }
 }
 
-/* Small Smartphone View (Under 576px) */
 @media screen and (max-width: 576px) {
   .top-header {
     flex-direction: column;
